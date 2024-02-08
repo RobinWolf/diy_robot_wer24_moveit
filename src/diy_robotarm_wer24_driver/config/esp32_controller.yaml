@@ -1,0 +1,69 @@
+#setup the controllers from ros fot the axis --> config file for ros2 control by defining the controller manager
+#tcontroller manager links controllers (defined below) to hardware (defined in diy_robotwam_wer24_description/urdf/robot_arm_control.urdf.xacro)
+
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Hz update rate for the control loop
+    tf_prefix: "arm_"
+
+#init the used controllers with specific hardware-interface type
+    #every controller subscribes on a 2 ROS-Topics e.g. [trajectory_msgs::msg::JointTrajectory and control_msgs::msg::JointTrajectoryControllerState]
+    #setpoints are read from the ros2 side and control-variables (actual value) are read from the hardware interface (defined below/ in urdf) with the read() method
+    #the control deviation is calculated inside the controller and new commands are passed to the hardware interface with the write() method
+
+    #user can access and command the controller by an integrated action server e.g. [control_msgs::action::FollowJointTrajectory]
+
+
+    #take the joint state information provided by the joint state publisher and broadcasting it on /joint_states topic
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster 
+
+    #passes command signal (goal/ command angle) from the command topic down to single joints. Command signal and joint hardware interface are of the same type (position/ angle)
+    forward_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+    #passes command signal to every joint (controls all joints dependent to each of them) --> used by moveit
+    joint_trajectory_position_controller:      
+      type: joint_trajectory_controller/JointTrajectoryController
+
+
+#define parameters from the controllers (interface_name and joints are defined in diy_robotarm_wer24_description/urdf/robot_arm_control.urdf.xacro)
+#this connects the controllers to Interfaces by calling the resource manager internally
+forward_position_controller:
+  ros__parameters:
+    joints:
+      - arm_shoulder
+      - arm_upper_arm
+      - arm_forearm
+      - arm_wrist_1
+      - arm_wrist_2
+      - arm_wrist_3
+    interface_name: position
+
+
+
+joint_trajectory_position_controller:
+  ros__parameters:
+    joints:
+      - arm_shoulder
+      - arm_upper_arm
+      - arm_forearm
+      - arm_wrist_1
+      - arm_wrist_2
+      - arm_wrist_3
+    #trajectory controller needs at least position feedback from the hardware (so we need to define state and command interfaces at this point)
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+
+    action_monitor_rate: 20.0 # in Hz, monitor changes on: control_msgs::action::FollowJointTrajectory
+    allow_partial_joints_goal: false
+    #by setting open_loop to true the state interfaces will be ignored and the last message on joint_trajectory command topic choosen as current hardware state instead
+    open_loop_control: true #because reading from command interface on starting, command interface must be set to NaN or state number before starting the controller (done with initial position in hardware description)
+    allow_integration_in_goal_trajectories: true
+
+    constraints:
+      stopped_velocity_tolerance: 0.01 # tolerance for deviation in stopping velocity between the axis
+      goal_time: 0.0 #tolerance for not reaching the end of the trajectory in a predefined time (0.0 = not checked!)

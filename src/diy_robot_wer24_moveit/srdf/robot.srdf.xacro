@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="wer24_robotarm">
+
+  <!-- parameters -->
+  <!-- <xacro:arg name="prefix" default="" /> -->
+
+  <xacro:include filename="$(find diy_robot_wer24_moveit)/srdf/robot_macro.srdf.xacro"/>
+
+  <!-- <xacro:robot_srdf name="$(arg name)" prefix="$(arg prefix)"/> -->
+  <xacro:robot_srdf/>
+
+</robot>
