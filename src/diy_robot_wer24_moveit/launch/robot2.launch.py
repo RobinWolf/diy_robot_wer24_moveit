@@ -47,22 +47,8 @@ def generate_launch_description():
         )
     )
 
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
-
-
-
-################################################################################################################################################
-def launch_setup(context, *args, **kwargs):
     tf_prefix = LaunchConfiguration("tf_prefix")
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
-    base_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [PathJoinSubstitution([FindPackageShare('diy_robotarm_wer24_driver'), 'launch']), "/controller.launch.py"]),
-        launch_arguments={
-            "use_fake_hardware": use_fake_hardware,
-            "tf_prefix": tf_prefix
-        }.items(),
-    )
 
     ###################################################################
     ##                         URDF Configuration                    ## ------------------> TODO add IP-Adress
@@ -144,12 +130,7 @@ def launch_setup(context, *args, **kwargs):
         "publish_transforms_updates": True,
     }
 
-    # Datenbank glaube ich, brauchen wir nicht
-    # warehouse_ros_config = {
-    #     "warehouse_plugin": "warehouse_ros_sqlite::DatabaseConnection",
-    #     "warehouse_host": warehouse_sqlite_path,
-    # }
-
+    #define the move group node
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -162,7 +143,6 @@ def launch_setup(context, *args, **kwargs):
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
-            # warehouse_ros_config,
         ],
     )
 
@@ -170,21 +150,21 @@ def launch_setup(context, *args, **kwargs):
     # rviz_config_file = PathJoinSubstitution(
     #     [FindPackageShare("ur_moveit_config"), "rviz", "view_robot.rviz"]
     # )
-    # rviz_node = Node(
-    #     package="rviz2",
-    #     executable="rviz2",
-    #     name="rviz2_moveit",
-    #     output="log",
-    #     arguments=["-d"],#, rviz_config_file
-    #     parameters=[
-    #         robot_description,
-    #         robot_description_semantic,
-    #        # ompl_planning_pipeline_config,
-    #         robot_description_kinematics,
-    #        # warehouse_ros_config,
-    #     ],
-    # )
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2_moveit",
+        output="log",
+        #arguments=["-d"],#, rviz_config_file
+        parameters=[
+            robot_description,
+            robot_description_semantic,
+            ompl_planning_pipeline_config,
+            robot_description_kinematics,
+        ],
+    )
 
+    #define the planning group node
     planning_group = {"planning_group": "wer24_robotarm"}
     moveit_wrapper = Node(
         package="moveit_wrapper",
@@ -193,24 +173,19 @@ def launch_setup(context, *args, **kwargs):
         parameters=[robot_description, robot_description_semantic, robot_description_kinematics, planning_group],
     )
 
-    # servo_yaml = load_yaml("ur5_cell_description", "config/ur_servo.yaml")
-    # servo_params = {"moveit_servo": servo_yaml}
-    # kinematics_yaml = load_yaml("ur5_cell_description", "config/kinematics.yaml")
-    # servo_node = Node(
-    #     package="moveit_servo",
-    #     executable="servo_node_main",
-    #     parameters=[
-    #         servo_params,
-    #         robot_description,
-    #         robot_description_semantic,
-    #         kinematics_yaml
-    #     ],
-    #     output="screen",
-    # )
+    #calls the launch file from the driver package
+    base_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [PathJoinSubstitution([FindPackageShare('diy_robotarm_wer24_driver'), 'launch']), "/controller.launch.py"]),
+        launch_arguments={
+            "use_fake_hardware": use_fake_hardware,
+            "tf_prefix": tf_prefix
+        }.items(),
+    )
+    nodes_to_start = [base_launch, rviz_node, move_group_node, moveit_wrapper]
 
-    # nodes_to_start = [base_launch, move_group_node, rviz_node, moveit_wrapper, servo_node]
-    nodes_to_start = [base_launch, move_group_node, moveit_wrapper]
-    return nodes_to_start
+    return LaunchDescription(declared_arguments + nodes_to_start)
+
 
 
 

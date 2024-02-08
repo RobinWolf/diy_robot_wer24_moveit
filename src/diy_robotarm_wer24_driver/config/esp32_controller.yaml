@@ -32,7 +32,7 @@ controller_manager:
 forward_position_controller:
   ros__parameters:
     joints:
-      - arm_shoulder
+      - arm_shoulder          #####TODO make the arm_ prefix configurable in launch file
       - arm_upper_arm
       - arm_forearm
       - arm_wrist_1
