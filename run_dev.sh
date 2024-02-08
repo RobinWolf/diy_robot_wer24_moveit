@@ -26,7 +26,7 @@ SRC_CONTAINER=/home/hephaestus/ros2_ws/src
 SRC_HOST="$(pwd)"/src
 
 docker run \
-  --name robot_arm_driver \
+  --name diy_robotarm_moveit\
   --rm \
   -it \
   --net=host \
