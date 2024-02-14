@@ -51,7 +51,7 @@ def generate_launch_description():
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
 
     ###################################################################
-    ##                         URDF Configuration                    ## ------------------> TODO add IP-Adress
+    ##                         URDF Configuration                    ##
     ###################################################################
     description_package = "diy_robot_full_cell_description"
     robot_description_content = Command(
