@@ -1,5 +1,4 @@
 import os
-
 import yaml
 
 from ament_index_python.packages import get_package_share_directory
@@ -10,6 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.descriptions import ParameterValue
+from launch.conditions import IfCondition
 
 
 def load_yaml(package_name, file_path):
@@ -24,36 +24,84 @@ def load_yaml(package_name, file_path):
         return None
     
 def generate_launch_description():
+#declare launch arguments (can be passed in the command line while launching)
     declared_arguments = []
-    # declared_arguments.append(
-    #     DeclareLaunchArgument(
-    #         "robot_ip",
-    #         default_value="192.168.1.102",
-    #         description="IP address by which the robot can be reached.",
-    #     )
-    # )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "use_fake_hardware",
-            default_value="true",
-            description="Start robot with mock hardware mirroring command to its states.",
-        )
-    )
     declared_arguments.append(
         DeclareLaunchArgument(
             "tf_prefix",
-            default_value="",
-            description="Identifier for running multiple robots in one scene..",
+            default_value='""',
+            description="Prefix for the links and joints in the robot cell",
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "tf_prefix_sub",
+            default_value='"sub_"',
+            description="Prefix for the subframe of the cell, should be unique to avoid namespace collisions",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "tf_prefix_arm",
+            default_value='"arm_"',
+            description="Prefix for the robotarm inside the cell, should be unique to avoid namespace collisions",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "tf_prefix_grip",
+            default_value='"grip_"',
+            description="Prefix for the gripper inside the cell, should be unique to avoid namespace collisions",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "use_fake_hardware",
+            default_value='"true"',
+            description="start the robot with fake (mock) hardware or real controller",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "robot_ip",
+            default_value='"192.168.212.203"',
+            description="The IP-Adress with which the robot hardware joins the common network",
+        )
+    )  
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "robot_ssid",
+            default_value='"DIY-Robotics"',
+            description="The SSID from the common network (PC and ESP must be member of this network)",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "rviz",
+            default_value="false",
+            description="Start RViz2 automatically with this launch file, shoulf be deactivated when launching moveit from this base image.",
+    )
+  )
+
 
     tf_prefix = LaunchConfiguration("tf_prefix")
+    tf_prefix_sub = LaunchConfiguration("tf_prefix_sub")
+    tf_prefix_arm = LaunchConfiguration("tf_prefix_arm")
+    tf_prefix_grip = LaunchConfiguration("tf_prefix_grip")
+
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
+    robot_ip = LaunchConfiguration("robot_ip")
+    robot_ssid = LaunchConfiguration("robot_ssid")
+
+    rviz = LaunchConfiguration("rviz")
+
+
 
     ###################################################################
     ##                         URDF Configuration                    ##
     ###################################################################
     description_package = "diy_robot_full_cell_description"
+
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -63,15 +111,27 @@ def generate_launch_description():
             "tf_prefix:=",
             tf_prefix,
             " ",
+            "tf_prefix_sub:=",
+            tf_prefix_sub,
+            " ",
+            "tf_prefix_arm:=",
+            tf_prefix_arm,
+            " ",
+            "tf_prefix_grip:=",
+            tf_prefix_grip,
+            " ",
+            "robot_ip:=",
+            robot_ip,
+            " ",
+            "robot_ssid:=",
+            robot_ssid,
+            " ",
             "use_fake_hardware:=",
             use_fake_hardware,
          ]
     )
 
-
-    # robot_ip = LaunchConfiguration("robot_ip")
     robot_description = {"robot_description": ParameterValue(robot_description_content, value_type=str)} 
-    # robot_description = {"robot_description": robot_description_content}
 
 
     ###################################################################
@@ -85,9 +145,18 @@ def generate_launch_description():
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution([FindPackageShare(moveit_package), "srdf", "robot.srdf.xacro"]),
-            " ",
+              " ",
             "tf_prefix:=",
             tf_prefix,
+            " ",
+            "tf_prefix_sub:=",
+            tf_prefix_sub,
+            " ",
+            "tf_prefix_arm:=",
+            tf_prefix_arm,
+            " ",
+            "tf_prefix_grip:=",
+            tf_prefix_grip,
         ]
     )
 
@@ -146,23 +215,20 @@ def generate_launch_description():
         ],
     )
 
-    # rviz with moveit configuration
-    # rviz_config_file = PathJoinSubstitution(
-    #     [FindPackageShare("ur_moveit_config"), "rviz", "view_robot.rviz"]
-    # )
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
-        name="rviz2_moveit",
+        name="rviz2",
         output="log",
-        #arguments=["-d"],#, rviz_config_file
+        arguments=["-d", rviz_config_file],
         parameters=[
             robot_description,
             robot_description_semantic,
             ompl_planning_pipeline_config,
-            robot_description_kinematics,
-        ],
+            robot_description_kinematics,],
+        condition=IfCondition(rviz)
     )
+
 
     #define the planning group node
     planning_group = {"planning_group": "wer24_robotarm"}

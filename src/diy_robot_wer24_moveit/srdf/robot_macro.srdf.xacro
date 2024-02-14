@@ -6,23 +6,21 @@
     A URDF file must exist for this robot as well, where the joints and the links that are referenced are defined
 -->
 
-  <xacro:macro name="robot_srdf" params="tf_prefix">
+  <xacro:macro name="robot_srdf" params="tf_prefix tf_prefix_sub tf_prefix_arm tf_prefix_grip">
     <!--GROUPS - Representation of a set of joints and links. This can be useful for specifying DOF to plan for, defining arms, end effectors, etc-->
     <group name="wer24_robotarm">
-      <chain base_link="${tf_prefix}sub_subframe_link" tip_link="${tf_prefix}grip_base_link" />
+      <chain base_link="${tf_prefix}${tf_prefix_sub}subframe_link" tip_link="${tf_prefix}${tf_prefix_grip}base_link" />
     </group>
 
     <!--DISABLE COLLISIONS - By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
-    <disable_collisions link1="${tf_prefix}sub_subframe_link" link2="${tf_prefix}arm_base_link" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_base_link" link2="${tf_prefix}arm_link_1" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_link_1" link2="${tf_prefix}arm_link_2" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_link_2" link2="${tf_prefix}arm_link_3" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_link_3" link2="${tf_prefix}arm_link_4" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_link_4" link2="${tf_prefix}arm_link_5" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_link_5" link2="${tf_prefix}arm_link_6" reason="Adjacent" />
-    <disable_collisions link1="${tf_prefix}arm_link_6" link2="${tf_prefix}grip_base_link" reason="Adjacent" />
-
-
+    <disable_collisions link1="${tf_prefix}${tf_prefix_sub}subframe_link" link2="${tf_prefix}arm_base_link" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}base_link" link2="${tf_prefix}${tf_prefix_arm}link_1" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}link_1" link2="${tf_prefix}${tf_prefix_arm}link_2" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}link_2" link2="${tf_prefix}${tf_prefix_arm}link_3" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}link_3" link2="${tf_prefix}${tf_prefix_arm}link_4" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}link_4" link2="${tf_prefix}${tf_prefix_arm}link_5" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}link_5" link2="${tf_prefix}${tf_prefix_arm}link_6" reason="Adjacent" />
+    <disable_collisions link1="${tf_prefix}${tf_prefix_arm}link_6" link2="${tf_prefix}${tf_prefix_grip}base_link" reason="Adjacent" />
 
 
   </xacro:macro>
