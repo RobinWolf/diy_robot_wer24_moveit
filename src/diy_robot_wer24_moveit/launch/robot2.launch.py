@@ -182,6 +182,8 @@ def generate_launch_description():
 
     # Trajectory Execution Configuration of the trajectories controllers
     controllers_yaml = load_yaml(moveit_package, "config/controllers.yaml")
+    controllers_yaml["joint_trajectory_position_controller"]["default"] = True
+
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_yaml,
         "moveit_controller_manager": "moveit_simple_controller_manager/MoveItSimpleControllerManager",
