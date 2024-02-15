@@ -9,7 +9,6 @@
   <xacro:arg name="tf_prefix_arm" default="arm_"/>
   <xacro:arg name="tf_prefix_grip" default="grip_"/>
 
-
   <xacro:include filename="$(find diy_robot_wer24_moveit)/srdf/robot_macro.srdf.xacro"/>
 
   <xacro:robot_srdf
