@@ -219,6 +219,7 @@ def generate_launch_description():
     
     rviz_node = Node(
         package="rviz2",
+        #condition=IfCondition(rviz),
         executable="rviz2",
         name="rviz2",
         output="log",
@@ -228,7 +229,6 @@ def generate_launch_description():
             robot_description_semantic,
             ompl_planning_pipeline_config,
             robot_description_kinematics],
-        condition=IfCondition(rviz)
     )
 
 
