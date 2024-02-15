@@ -79,7 +79,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "rviz",
             default_value="false",
-            description="Start RViz2 automatically with this launch file, shoulf be deactivated when launching moveit from this base image.",
+            description="Start RViz2 automatically with this launch file, should be deactivated when launching moveit from this base image.",
     )
   )
 
@@ -160,15 +160,15 @@ def generate_launch_description():
         ]
     )
 
-    robot_description_semantic = {"robot_description_semantic": robot_description_semantic_content}
-    #robot_description_semantic = {"robot_description_semantic": ParameterValue(robot_description_semantic_content, value_type=str)} 
+    #robot_description_semantic = {"robot_description_semantic": robot_description_semantic_content}
+    robot_description_semantic = {"robot_description_semantic": ParameterValue(robot_description_semantic_content, value_type=str)} 
 
     #configure the kinematics solver
     robot_description_kinematics = PathJoinSubstitution(
-        [FindPackageShare("diy_robot_wer24_moveit"), "config", "kinematics.yaml"]
+        [FindPackageShare(moveit_package), "config", "kinematics.yaml"]
     )
 
-    #configure the planning algorithms such as a*, RRT, PRM
+    #configure the planning algorithms such as A-*, RRT, PRM
     ompl_planning_pipeline_config = {
         "move_group": {
             "planning_plugin": "ompl_interface/OMPLPlanner",
@@ -176,12 +176,12 @@ def generate_launch_description():
             "start_state_max_bounds_error": 0.1,
         }
     }
-    ompl_planning_yaml = load_yaml("diy_robot_wer24_moveit", "config/ompl_planning.yaml")
+    ompl_planning_yaml = load_yaml(moveit_package, "config/ompl_planning.yaml")
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
     
 
     # Trajectory Execution Configuration of the trajectories controllers
-    controllers_yaml = load_yaml("diy_robot_wer24_moveit", "config/controllers.yaml")
+    controllers_yaml = load_yaml(moveit_package, "config/controllers.yaml")
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_yaml,
         "moveit_controller_manager": "moveit_simple_controller_manager/MoveItSimpleControllerManager",
@@ -215,6 +215,8 @@ def generate_launch_description():
         ],
     )
 
+    rviz_config_file = PathJoinSubstitution([FindPackageShare(moveit_package), "rviz", "rviz_config.rviz"]) # define path to rviz-config file
+    
     rviz_node = Node(
         package="rviz2",
         executable="rviz2",
@@ -225,7 +227,7 @@ def generate_launch_description():
             robot_description,
             robot_description_semantic,
             ompl_planning_pipeline_config,
-            robot_description_kinematics,],
+            robot_description_kinematics],
         condition=IfCondition(rviz)
     )
 
@@ -239,13 +241,24 @@ def generate_launch_description():
         parameters=[robot_description, robot_description_semantic, robot_description_kinematics, planning_group],
     )
 
+
     #calls the launch file from the driver package
+    arm_driver_package = "diy_robotarm_wer24_driver"
+
+    base_rviz = "false"
+
     base_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [PathJoinSubstitution([FindPackageShare('diy_robotarm_wer24_driver'), 'launch']), "/controller.launch.py"]),
+            [PathJoinSubstitution([FindPackageShare(arm_driver_package), 'launch']), "/controller.launch.py"]),
         launch_arguments={
+            "tf_prefix": tf_prefix,
+            "tf_prefix_sub": tf_prefix_sub,
+            "tf_prefix_arm": tf_prefix_arm,
+            "tf_prefix_grip": tf_prefix_grip,
             "use_fake_hardware": use_fake_hardware,
-            "tf_prefix": tf_prefix
+            "robot_ip": robot_ip,
+            "robot_ssid": robot_ssid,
+            "rviz": base_rviz,
         }.items(),
     )
     nodes_to_start = [base_launch, rviz_node, move_group_node, moveit_wrapper]
