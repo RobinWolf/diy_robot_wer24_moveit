@@ -1,15 +1,16 @@
 import os
-
 import yaml
 
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import Node
+from launch.actions import DeclareLaunchArgument
+from launch.actions import OpaqueFunction
+from launch.conditions import IfCondition
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
 from launch_ros.descriptions import ParameterValue
+
 
 
 def load_yaml(package_name, file_path):
@@ -23,97 +24,159 @@ def load_yaml(package_name, file_path):
     except OSError:  # parent of IOError, OSError *and* WindowsError where available
         return None
     
+
+
 def generate_launch_description():
+#declare launch arguments (can be passed in the command line while launching)
     declared_arguments = []
-    # declared_arguments.append(
-    #     DeclareLaunchArgument(
-    #         "robot_ip",
-    #         default_value="192.168.1.102",
-    #         description="IP address by which the robot can be reached.",
-    #     )
-    # )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "use_fake_hardware",
-            default_value="true",
-            description="Start robot with mock hardware mirroring command to its states.",
-        )
-    )
     declared_arguments.append(
         DeclareLaunchArgument(
             "tf_prefix",
-            default_value="",
-            description="Identifier for running multiple robots in one scene..",
+            default_value='""',
+            description="Prefix for the links and joints in the robot cell",
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "tf_prefix_sub",
+            default_value='"sub_"',
+            description="Prefix for the subframe of the cell, should be unique to avoid namespace collisions",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "tf_prefix_arm",
+            default_value='"arm_"',
+            description="Prefix for the robotarm inside the cell, should be unique to avoid namespace collisions",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "tf_prefix_grip",
+            default_value='"grip_"',
+            description="Prefix for the gripper inside the cell, should be unique to avoid namespace collisions",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "use_fake_hardware",
+            default_value='"true"',
+            description="start the robot with fake (mock) hardware or real controller",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "robot_ip",
+            default_value='"192.168.212.203"',
+            description="The IP-Adress with which the robot hardware joins the common network",
+        )
+    )  
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "robot_ssid",
+            default_value='"DIY-Robotics"',
+            description="The SSID from the common network (PC and ESP must be member of this network)",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "rviz",
+            default_value="false",
+            description="Start RViz2 automatically with this launch file, should be deactivated when launching moveit from this base image.",
+    )
+  )
+    
 
-    return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
-
-
-
-################################################################################################################################################
-def launch_setup(context, *args, **kwargs):
+    # Initialize Arguments
     tf_prefix = LaunchConfiguration("tf_prefix")
+    tf_prefix_sub = LaunchConfiguration("tf_prefix_sub")
+    tf_prefix_arm = LaunchConfiguration("tf_prefix_arm")
+    tf_prefix_grip = LaunchConfiguration("tf_prefix_grip")
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
-    base_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [PathJoinSubstitution([FindPackageShare('diy_robotarm_wer24_driver'), 'launch']), "/controller.launch.py"]),
-        launch_arguments={
-            "use_fake_hardware": use_fake_hardware,
-            "tf_prefix": tf_prefix
-        }.items(),
+    robot_ip = LaunchConfiguration("robot_ip")
+    robot_ssid = LaunchConfiguration("robot_ssid")
+    rviz = LaunchConfiguration("rviz")
+
+
+    #define used packages
+    description_package = "diy_robot_full_cell_description"
+    moveit_package = "diy_robot_wer24_moveit"
+
+
+    joint_limit_params = PathJoinSubstitution(
+        [FindPackageShare(description_package), "config", "joint_limits.yaml"]
+    )
+    initial_positions_params = PathJoinSubstitution(
+        [FindPackageShare(description_package), "config", "initial_positions.yaml"]
     )
 
-    ###################################################################
-    ##                         URDF Configuration                    ## ------------------> TODO add IP-Adress
-    ###################################################################
-    description_package = "diy_robot_full_cell_description"
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution([FindPackageShare(description_package), "urdf", "cell_model.urdf.xacro"]),
             " ",
+            "joint_limit_params:=",
+            joint_limit_params,
+            " ",
+            "initial_positions_params:=",
+            initial_positions_params,
+            " ",
             "tf_prefix:=",
             tf_prefix,
+            " ",
+            "tf_prefix_sub:=",
+            tf_prefix_sub,
+            " ",
+            "tf_prefix_arm:=",
+            tf_prefix_arm,
+            " ",
+            "tf_prefix_grip:=",
+            tf_prefix_grip,
+            " ",
+            "robot_ip:=",
+            robot_ip,
+            " ",
+            "robot_ssid:=",
+            robot_ssid,
             " ",
             "use_fake_hardware:=",
             use_fake_hardware,
          ]
     )
 
-
-    # robot_ip = LaunchConfiguration("robot_ip")
     robot_description = {"robot_description": ParameterValue(robot_description_content, value_type=str)} 
-    # robot_description = {"robot_description": robot_description_content}
 
-
-    ###################################################################
-    ##                       MoveIt Configuration                    ##
-    ###################################################################
-
-    #configure the SRDF
-    moveit_package = "diy_robot_wer24_moveit"
+    # MoveIt Configuration
     robot_description_semantic_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
-            PathJoinSubstitution([FindPackageShare(moveit_package), "srdf", "robot.srdf.xacro"]),
-            " ",
-            "tf_prefix:=",
-            tf_prefix,
+            PathJoinSubstitution(
+                [FindPackageShare(moveit_package), "srdf", "robot.srdf.xacro"]),
+                " ",
+                "tf_prefix:=",
+                tf_prefix,
+                " ",
+                "tf_prefix_sub:=",
+                tf_prefix_sub,
+                " ",
+                "tf_prefix_arm:=",
+                tf_prefix_arm,
+                " ",
+                "tf_prefix_grip:=",
+                tf_prefix_grip,
         ]
     )
-
     robot_description_semantic = {"robot_description_semantic": robot_description_semantic_content}
-    #robot_description_semantic = {"robot_description_semantic": ParameterValue(robot_description_semantic_content, value_type=str)} 
 
-    #configure the kinematics solver
+
     robot_description_kinematics = PathJoinSubstitution(
-        [FindPackageShare("diy_robot_wer24_moveit"), "config", "kinematics.yaml"]
+        [FindPackageShare(moveit_package), "config", "kinematics.yaml"]
     )
 
-    #configure the planning algorithms such as a*, RRT, PRM
+
+    # Planning Configuration
     ompl_planning_pipeline_config = {
         "move_group": {
             "planning_plugin": "ompl_interface/OMPLPlanner",
@@ -121,22 +184,27 @@ def launch_setup(context, *args, **kwargs):
             "start_state_max_bounds_error": 0.1,
         }
     }
-    ompl_planning_yaml = load_yaml("diy_robot_wer24_moveit", "config/ompl_planning.yaml")
-    ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
-    
 
-    # Trajectory Execution Configuration of the trajectories controllers
-    controllers_yaml = load_yaml("diy_robot_wer24_moveit", "config/controllers.yaml")
+    ompl_planning_yaml = load_yaml(moveit_package, "config/ompl_planning.yaml")
+    ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
+
+    # Trajectory Execution Configuration
+    controllers_yaml = load_yaml(moveit_package, "config/controllers.yaml")
+    controllers_yaml["joint_trajectory_controller"]["default"] = True
+
+
     moveit_controllers = {
         "moveit_simple_controller_manager": controllers_yaml,
         "moveit_controller_manager": "moveit_simple_controller_manager/MoveItSimpleControllerManager",
     }
+
     trajectory_execution = {
         "moveit_manage_controllers": False,
         "trajectory_execution.allowed_execution_duration_scaling": 1.2,
         "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_start_tolerance": 0.01,
     }
+
     planning_scene_monitor_parameters = {
         "publish_planning_scene": True,
         "publish_geometry_updates": True,
@@ -144,12 +212,8 @@ def launch_setup(context, *args, **kwargs):
         "publish_transforms_updates": True,
     }
 
-    # Datenbank glaube ich, brauchen wir nicht
-    # warehouse_ros_config = {
-    #     "warehouse_plugin": "warehouse_ros_sqlite::DatabaseConnection",
-    #     "warehouse_host": warehouse_sqlite_path,
-    # }
 
+    # Start the actual move_group node/action server
     move_group_node = Node(
         package="moveit_ros_move_group",
         executable="move_group",
@@ -162,55 +226,31 @@ def launch_setup(context, *args, **kwargs):
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
-            # warehouse_ros_config,
         ],
     )
 
     # rviz with moveit configuration
-    # rviz_config_file = PathJoinSubstitution(
-    #     [FindPackageShare("ur_moveit_config"), "rviz", "view_robot.rviz"]
-    # )
-    # rviz_node = Node(
-    #     package="rviz2",
-    #     executable="rviz2",
-    #     name="rviz2_moveit",
-    #     output="log",
-    #     arguments=["-d"],#, rviz_config_file
-    #     parameters=[
-    #         robot_description,
-    #         robot_description_semantic,
-    #        # ompl_planning_pipeline_config,
-    #         robot_description_kinematics,
-    #        # warehouse_ros_config,
-    #     ],
-    # )
+    rviz_config_file = PathJoinSubstitution([FindPackageShare(moveit_package), "rviz", "rviz_config.rviz"]) # define path to rviz-config file
 
-    planning_group = {"planning_group": "wer24_robotarm"}
-    moveit_wrapper = Node(
-        package="moveit_wrapper",
-        executable="moveit_wrapper_node",
-        output="screen",
-        parameters=[robot_description, robot_description_semantic, robot_description_kinematics, planning_group],
+    
+    rviz_node = Node(
+        package="rviz2",
+        condition=IfCondition(rviz),
+        executable="rviz2",
+        name="rviz2_moveit",
+        output="log",
+        arguments=["-d", rviz_config_file],
+        parameters=[
+            robot_description,
+            robot_description_semantic,
+            ompl_planning_pipeline_config,
+            robot_description_kinematics,
+        ],
     )
 
-    # servo_yaml = load_yaml("ur5_cell_description", "config/ur_servo.yaml")
-    # servo_params = {"moveit_servo": servo_yaml}
-    # kinematics_yaml = load_yaml("ur5_cell_description", "config/kinematics.yaml")
-    # servo_node = Node(
-    #     package="moveit_servo",
-    #     executable="servo_node_main",
-    #     parameters=[
-    #         servo_params,
-    #         robot_description,
-    #         robot_description_semantic,
-    #         kinematics_yaml
-    #     ],
-    #     output="screen",
-    # )
 
-    # nodes_to_start = [base_launch, move_group_node, rviz_node, moveit_wrapper, servo_node]
-    nodes_to_start = [base_launch, move_group_node, moveit_wrapper]
-    return nodes_to_start
+    nodes_to_start = [move_group_node, rviz_node]
 
 
 
+    return LaunchDescription(declared_arguments + nodes_to_start)
