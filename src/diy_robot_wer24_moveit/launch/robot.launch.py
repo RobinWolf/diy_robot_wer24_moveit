@@ -190,7 +190,7 @@ def generate_launch_description():
 
     # Trajectory Execution Configuration
     controllers_yaml = load_yaml(moveit_package, "config/controllers.yaml")
-    controllers_yaml["joint_trajectory_controller"]["default"] = True
+    #controllers_yaml["joint_trajectory_controller"]["default"] = True
 
 
     moveit_controllers = {

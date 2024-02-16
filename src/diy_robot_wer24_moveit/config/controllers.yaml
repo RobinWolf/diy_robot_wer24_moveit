@@ -1,14 +1,14 @@
 controller_names:
-  - joint_trajectory_position_controller
+  - joint_trajectory_controller #moveit trys to connect to this controller defined inside the driver package (hardware interface side)
 
-joint_trajectory_position_controller:
-  action_ns: follow_joint_trajectory
-  type: FollowJointTrajectory
-  default: false
+joint_trajectory_controller:
+  action_ns: follow_joint_trajectory  #define some properties for the connection between hardware interface and moveit
+  type: FollowJointTrajectory         #connection over a action node FollowJointTrajectory with specified namespace
+  default: true
   joints:
-    - arm_shoulder
-    - arm_upper_arm
-    - arm_forearm
-    - arm_wrist_1
-    - arm_wrist_2
-    - arm_wrist_3
+    - "arm_shoulder"
+    - "arm_upper_arm"
+    - "arm_forearm"
+    - "arm_wrist_1"
+    - "arm_wrist_2"
+    - "arm_wrist_3"
