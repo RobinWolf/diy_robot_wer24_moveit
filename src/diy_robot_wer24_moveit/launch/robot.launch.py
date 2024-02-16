@@ -2,8 +2,8 @@ import os
 import yaml
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
-from launch.actions import OpaqueFunction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -80,9 +80,9 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
-            "rviz",
-            default_value="false",
-            description="Start RViz2 automatically with this launch file, should be deactivated when launching moveit from this base image.",
+            "moveit_rviz",
+            default_value="true",
+            description="Start RViz2 automatically with this launch file, This Rviz includes motion planning",
     )
   )
     
@@ -95,11 +95,12 @@ def generate_launch_description():
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
     robot_ip = LaunchConfiguration("robot_ip")
     robot_ssid = LaunchConfiguration("robot_ssid")
-    rviz = LaunchConfiguration("rviz")
+    moveit_rviz = LaunchConfiguration("moveit_rviz")
 
 
     #define used packages
     description_package = "diy_robot_full_cell_description"
+    arm_driver_package = "diy_robotarm_wer24_driver"
     moveit_package = "diy_robot_wer24_moveit"
 
 
@@ -190,7 +191,6 @@ def generate_launch_description():
 
     # Trajectory Execution Configuration
     controllers_yaml = load_yaml(moveit_package, "config/controllers.yaml")
-    #controllers_yaml["joint_trajectory_controller"]["default"] = True
 
 
     moveit_controllers = {
@@ -235,7 +235,7 @@ def generate_launch_description():
     
     rviz_node = Node(
         package="rviz2",
-        condition=IfCondition(rviz),
+        condition=IfCondition(moveit_rviz),
         executable="rviz2",
         name="rviz2_moveit",
         output="log",
@@ -249,7 +249,23 @@ def generate_launch_description():
     )
 
 
-    nodes_to_start = [move_group_node, rviz_node]
+    #launch the driver with the controller.launch.py script from drivers package (as dependencie inside this container)
+    driver_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [PathJoinSubstitution([FindPackageShare(arm_driver_package), 'launch']), "/controller.launch.py"]),
+            launch_arguments={
+                "tf_prefix": tf_prefix,
+                "tf_prefix_sub": tf_prefix_sub,
+                "tf_prefix_arm": tf_prefix_arm,
+                "tf_prefix_grip": tf_prefix_grip,
+                "use_fake_hardware": use_fake_hardware,
+                "robot_ip": robot_ip,
+                "robot_ssid": robot_ssid,   #the rviz argument is not passed, because the rviz from driver package (without moveit) should not be launched here in all cases (default = false)
+            }.items(),
+    )
+
+
+    nodes_to_start = [driver_launch, move_group_node, rviz_node]
 
 
     return LaunchDescription(declared_arguments + nodes_to_start)
