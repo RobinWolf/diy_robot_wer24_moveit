@@ -69,7 +69,7 @@ class RobotClient:  #this is the class which gets called in your application
         
         # TODO where to get home pose from
         #self.home_position = [np.pi / 2, -np.pi / 2, np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2]
-        self.home_position = [0,0,0,0,0,0]
+        self.home_position = [0.0,0.0,0.0,0.0,0.0,0.0]
 
         #not really necessary in our case
         # self.start_servo_client = self.node.create_client(
