@@ -74,7 +74,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "robot_ssid",
-            default_value='"DIY-Robotics"',
+            default_value="DIY-Robotics",
             description="The SSID from the common network (PC and ESP must be member of this network)",
         )
     )
