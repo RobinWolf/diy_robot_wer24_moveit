@@ -1,0 +1,3 @@
+*.pyc
+build/
+manipulation_tasks.egg-info/

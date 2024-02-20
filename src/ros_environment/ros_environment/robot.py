@@ -9,7 +9,7 @@ from moveit_wrapper.srv import MoveToPose, MoveToJointPosition, String
 from geometry_msgs.msg import Pose as PoseMsg
 from manipulation_tasks.transform import Affine
 from geometry_msgs.msg import Quaternion, Point
-from std_srvs.srv import Trigger
+from std_srvs.srv import Trigger    #change in SetBool for our gripper driver
 import copy
 
 from ros_environment.lib.base_node import BaseNode
@@ -38,7 +38,7 @@ class RobotClient:
             self.node = BaseNode("robot_client", is_simulation)
         else:
             self.node = node
-        self.move_lin_cli = self.node.create_client(MoveToPose, "/move_to_pose_lin")
+        self.move_lin_cli = self.node.create_client(MoveToPose, "/move_to_pose_lin")    #gegenstücke vom wrapper
         while not self.move_lin_cli.wait_for_service(timeout_sec=1.0):
             self.node.get_logger().info("move_to_pose_lin service not available, waiting some more ...")
         self.node.get_logger().info("move_to_pose_lin service available")
@@ -58,7 +58,7 @@ class RobotClient:
             self.node.get_logger().info("reset_planning_group service not available, waiting some more ...")
         self.node.get_logger().info("reset_planning_group service available")
 
-        self.is_simulation = is_simulation
+        self.is_simulation = is_simulation  # so lange kein richtiges gripper interface da ist
         if not self.is_simulation:
             self.open_cli = self.node.create_client(Trigger, "/open_gripper")
             while not self.open_cli.wait_for_service(timeout_sec=1.0):
@@ -172,7 +172,7 @@ class RobotClient:
         """
         s = True
         if not self.is_simulation:
-            req = Trigger.Request()
+            req = Trigger.Request() ## change to our Service oder Standard set_bool req.data = true für 1 = close
             future = RobotClient.send_request(req, self.open_cli)
             response = self.wait_for_response(future)
             s = response.success
