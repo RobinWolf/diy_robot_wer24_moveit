@@ -107,4 +107,5 @@ def generate_launch_description():
             "use_fake_hardware": use_fake_hardware,
         }.items(),
     )
+    
     return LaunchDescription(declared_arguments + [control_launch, moveit_launch, moveit_wrapper_launch])

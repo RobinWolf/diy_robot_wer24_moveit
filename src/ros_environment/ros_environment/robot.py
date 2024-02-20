@@ -5,14 +5,14 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.task import Future
-from moveit_wrapper.srv import MoveToPose, MoveToJointPosition, String
+from moveit_wrapper.srv import MoveToPose, MoveToJointPosition, String  #import the custom service interfaces from the wrapper package
 from geometry_msgs.msg import Pose as PoseMsg
 from manipulation_tasks.transform import Affine
 from geometry_msgs.msg import Quaternion, Point
 from std_srvs.srv import Trigger    #change in SetBool for our gripper driver
 import copy
 
-from ros_environment.lib.base_node import BaseNode
+from ros_environment.lib.base_node import BaseNode  #import the get_transform method to get affine transforms between X and world
 
 from .util import affine_to_pose
 
@@ -20,7 +20,7 @@ from .util import affine_to_pose
 # TODO use manipulation_tasks protocol for Robot
 
 
-class RobotClient:
+class RobotClient:  #this is the class which gets called in your application
     """ 
     TODO description
     """
