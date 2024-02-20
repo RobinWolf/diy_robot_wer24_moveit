@@ -9,7 +9,7 @@ from moveit_wrapper.srv import MoveToPose, MoveToJointPosition, String  #import 
 from geometry_msgs.msg import Pose as PoseMsg
 from manipulation_tasks.transform import Affine
 from geometry_msgs.msg import Quaternion, Point
-from std_srvs.srv import Trigger    #change in SetBool for our gripper driver
+from std_srvs.srv import SetBool, Trigger    #change in SetBool for our gripper driver
 import copy
 
 from ros_environment.lib.base_node import BaseNode  #import the get_transform method to get affine transforms between X and world
@@ -35,10 +35,10 @@ class RobotClient:  #this is the class which gets called in your application
 
         """
         if node is None:
-            self.node = BaseNode("robot_client", is_simulation)
+            self.node = BaseNode("robot_client", is_simulation) #starts the BaseNode (lib folder)
         else:
             self.node = node
-        self.move_lin_cli = self.node.create_client(MoveToPose, "/move_to_pose_lin")    #gegenstücke vom wrapper
+        self.move_lin_cli = self.node.create_client(MoveToPose, "/move_to_pose_lin")    #connects to the services defined in the moveit_wrapper srvs
         while not self.move_lin_cli.wait_for_service(timeout_sec=1.0):
             self.node.get_logger().info("move_to_pose_lin service not available, waiting some more ...")
         self.node.get_logger().info("move_to_pose_lin service available")
@@ -58,17 +58,20 @@ class RobotClient:  #this is the class which gets called in your application
             self.node.get_logger().info("reset_planning_group service not available, waiting some more ...")
         self.node.get_logger().info("reset_planning_group service available")
 
-        self.is_simulation = is_simulation  # so lange kein richtiges gripper interface da ist
+        self.is_simulation = is_simulation  # set to true until the gripper driver works
         if not self.is_simulation:
-            self.open_cli = self.node.create_client(Trigger, "/open_gripper")
+            self.gripper_cli = self.node.create_client(SetBool, "/gripper_control")       #modified to bool service 0 open/ 1 close instead of 2 diffrent trigger services
             while not self.open_cli.wait_for_service(timeout_sec=1.0):
-                self.node.get_logger().info("open_gripper service not available, waiting again...")
-            self.close_cli = self.node.create_client(Trigger, "/close_gripper")
-            while not self.close_cli.wait_for_service(timeout_sec=1.0):
-                self.node.get_logger().info("close_gripper service not available, waiting again...")
+                self.node.get_logger().info("gripper_controller service not available, waiting again...")
+            # self.close_cli = self.node.create_client(SetBool, "/close_gripper")
+            # while not self.close_cli.wait_for_service(timeout_sec=1.0):
+            #     self.node.get_logger().info("close_gripper service not available, waiting again...")
+        
         # TODO where to get home pose from
-        self.home_position = [np.pi / 2, -np.pi / 2, np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2]
+        #self.home_position = [np.pi / 2, -np.pi / 2, np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2]
+        self.home_position = [0,0,0,0,0,0]
 
+        #not really necessary in our case
         self.start_servo_client = self.node.create_client(
             Trigger, "servo_node/start_servo")
 
@@ -160,7 +163,7 @@ class RobotClient:  #this is the class which gets called in your application
         response = self.wait_for_response(future)
         return response.success
 
-    def open_gripper(self) -> bool:
+    def toggle_gripper(self, request = 0) -> bool:    #pass 0 for open and 1 for close
         """
         TODO docstring
 
@@ -172,33 +175,34 @@ class RobotClient:  #this is the class which gets called in your application
         """
         s = True
         if not self.is_simulation:
-            req = Trigger.Request() ## change to our Service oder Standard set_bool req.data = true für 1 = close
-            future = RobotClient.send_request(req, self.open_cli)
+            req = SetBool.Request() # init the message object
+            req.data = request  #pass the given argument to the server node
+            future = RobotClient.send_request(req, self.gripper_cli)
             response = self.wait_for_response(future)
             s = response.success
         if not s:
             self.node.get_logger().info("Opening gripper unsuccessful.")
         return s
 
-    def close_gripper(self) -> bool:
-        """
-        TODO docstring
+    # def close_gripper(self) -> bool:
+    #     """
+    #     TODO docstring
 
-        Returns
-        -------
-        bool
-            DESCRIPTION.
+    #     Returns
+    #     -------
+    #     bool
+    #         DESCRIPTION.
 
-        """
-        s = True
-        if not self.is_simulation:
-            req = Trigger.Request()
-            future = RobotClient.send_request(req, self.close_cli)
-            response = self.wait_for_response(future)
-            s = response.success
-        if not s:
-            self.node.get_logger().info("Closing gripper unsuccessful.")
-        return s
+    #     """
+    #     s = True
+    #     if not self.is_simulation:
+    #         req = SetBool.Request()
+    #         future = RobotClient.send_request(req, self.close_cli)
+    #         response = self.wait_for_response(future)
+    #         s = response.success
+    #     if not s:
+    #         self.node.get_logger().info("Closing gripper unsuccessful.")
+    #     return s
 
     @staticmethod
     def send_request(request, client):
