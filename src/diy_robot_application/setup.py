@@ -22,9 +22,9 @@ setup(
     #define here executables you want to call from the commamnd line. This are usual your applications
     entry_points={                                                     
         'console_scripts': [                        
-            'example = r2e_tutorial.example:main',
-            'house = r2e_tutorial.house:main', 
-            'printworldpos= r2e_tutorial.printworldpos:main',   
+            'example = diy_robot_application.example:main',
+            'house = diy_robot_application.house:main', 
+            'printworldpos= diy_robot_application.printworldpos:main',   
         ],
     },
 )

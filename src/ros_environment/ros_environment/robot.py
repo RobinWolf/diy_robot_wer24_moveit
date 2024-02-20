@@ -72,17 +72,17 @@ class RobotClient:  #this is the class which gets called in your application
         self.home_position = [0,0,0,0,0,0]
 
         #not really necessary in our case
-        self.start_servo_client = self.node.create_client(
-            Trigger, "servo_node/start_servo")
+        # self.start_servo_client = self.node.create_client(
+        #     Trigger, "servo_node/start_servo")
 
-        self.stop_servo_client = self.node.create_client(
-            Trigger, "servo_node/stop_servo")
+        # self.stop_servo_client = self.node.create_client(
+        #     Trigger, "servo_node/stop_servo")
 
-        while not self.start_servo_client.wait_for_service(timeout_sec=1.0):
-            self.node.get_logger().info('start_servo_client not available, waiting again...')
+        # while not self.start_servo_client.wait_for_service(timeout_sec=1.0):
+        #     self.node.get_logger().info('start_servo_client not available, waiting again...')
 
-        while not self.stop_servo_client.wait_for_service(timeout_sec=1.0):
-            self.node.get_logger().info('stop_servo_client not available, waiting again...')
+        # while not self.stop_servo_client.wait_for_service(timeout_sec=1.0):
+        #     self.node.get_logger().info('stop_servo_client not available, waiting again...')
 
     def home(self) -> bool:
         """
@@ -236,17 +236,17 @@ class RobotClient:  #this is the class which gets called in your application
                 else:
                     return response
 
-    def enable_servo(self) -> bool:
-        trigger = Trigger.Request()
-        future = self.start_servo_client.call_async(trigger)
-        response = self.wait_for_response(future)
-        return response
+    # def enable_servo(self) -> bool:
+    #     trigger = Trigger.Request()
+    #     future = self.start_servo_client.call_async(trigger)
+    #     response = self.wait_for_response(future)
+    #     return response
 
-    def disable_servo(self) -> bool:
-        trigger = Trigger.Request()
-        future = self.stop_servo_client.call_async(trigger)
-        response = self.wait_for_response(future)
-        return response
+    # def disable_servo(self) -> bool:
+    #     trigger = Trigger.Request()
+    #     future = self.stop_servo_client.call_async(trigger)
+    #     response = self.wait_for_response(future)
+    #     return response
 
     def destroy_node(self) -> None:
         self.node.destroy_node()
