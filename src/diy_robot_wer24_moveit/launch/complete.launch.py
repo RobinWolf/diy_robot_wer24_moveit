@@ -80,6 +80,28 @@ def generate_launch_description():
     )
     declared_arguments.append(
         DeclareLaunchArgument(
+            "gripper_ip",
+            default_value="192.168.212.202",
+            description="The IP-Adress with which the gripper hardware joins the common network",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "gripper_port",
+            default_value="80",
+            description="The Port which is used by the gripper hardware",
+        )
+    )  
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "gripper_ssid",
+            default_value="DIY-Robotics",
+            description="The SSID from the common network (PC and ESP must be member of this network)",
+        )
+    )
+
+    declared_arguments.append(
+        DeclareLaunchArgument(
             "moveit_rviz",
             default_value="true",
             description="Start RViz2 automatically with this launch file, This Rviz includes motion planning",
@@ -95,6 +117,9 @@ def generate_launch_description():
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
     robot_ip = LaunchConfiguration("robot_ip")
     robot_ssid = LaunchConfiguration("robot_ssid")
+    gripper_ip = LaunchConfiguration("gripper_ip")
+    gripper_ssid = LaunchConfiguration("gripper_ssid")
+    gripper_port = LaunchConfiguration("gripper_port")
     moveit_rviz = LaunchConfiguration("moveit_rviz")
 
 
@@ -269,9 +294,9 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution([FindPackageShare(gripper_driver_package), 'launch']), "/controller.launch.py"]),
             launch_arguments={
-                "gripper_ip": robot_ip,
-                "gripper_port": 80,
-                "gripper_ssid": robot_ssid,   
+                "gripper_ip": gripper_ip,
+                "gripper_port": gripper_port,
+                "gripper_ssid": gripper_ssid,   
             }.items(),
     )
 
