@@ -252,7 +252,7 @@ def generate_launch_description():
     #launch the driver with the controller.launch.py script from drivers package (as dependencie inside this container)
     driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [PathJoinSubstitution([FindPackageShare(arm_driver_package), 'launch']), "/controller.launch.py"]),
+            [PathJoinSubstitution([FindPackageShare(arm_driver_package), 'launch']), "/trajectory_controller.launch.py"]),
             launch_arguments={
                 "tf_prefix": tf_prefix,
                 "tf_prefix_sub": tf_prefix_sub,
