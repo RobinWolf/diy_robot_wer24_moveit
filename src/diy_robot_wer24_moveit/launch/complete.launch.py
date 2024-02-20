@@ -101,6 +101,7 @@ def generate_launch_description():
     #define used packages
     description_package = "diy_robot_full_cell_description"
     arm_driver_package = "diy_robotarm_wer24_driver"
+    gripper_driver_package = "diy_soft_gripper_driver"
     moveit_package = "diy_robot_wer24_moveit"
 
 
@@ -249,8 +250,8 @@ def generate_launch_description():
     )
 
 
-    #launch the driver with the controller.launch.py script from drivers package (as dependencie inside this container)
-    driver_launch = IncludeLaunchDescription(
+    #launch the driver with the controller.launch.py script from drivers package (is already as dependencie inside this container)
+    arm_driver_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             [PathJoinSubstitution([FindPackageShare(arm_driver_package), 'launch']), "/trajectory_controller.launch.py"]),
             launch_arguments={
@@ -264,6 +265,15 @@ def generate_launch_description():
             }.items(),
     )
 
+    gripper_driver_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [PathJoinSubstitution([FindPackageShare(gripper_driver_package), 'launch']), "/controller.launch.py"]),
+            launch_arguments={
+                "gripper_ip": robot_ip,
+                "gripper_port": 80,
+                "gripper_ssid": robot_ssid,   
+            }.items(),
+    )
 
     #launch the moveit_wrapper Node which will provide services which are used in ros_enviroment and called by the python application
     planning_group = {"planning_group": "wer24_robotarm"}
@@ -276,7 +286,7 @@ def generate_launch_description():
 
 
 
-    nodes_to_start = [driver_launch, move_group_node, rviz_node, moveit_wrapper]
+    nodes_to_start = [arm_driver_launch, gripper_driver_launch, move_group_node, rviz_node, moveit_wrapper]
 
 
     return LaunchDescription(declared_arguments + nodes_to_start)
