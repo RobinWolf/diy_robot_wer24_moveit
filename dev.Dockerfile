@@ -143,7 +143,7 @@ USER $USER
 ###################################################################################
 ##     6. sage: Gripper Driver (includes used Service to open/ close)            ##
 ###################################################################################
-FROM diy_robotarm_driver as diy-gripper-driver
+FROM diy_robotarm_driver as diy_gripper_driver
 
 
 # Clone the diy-soft-gripper-driver package into its own workspace
@@ -170,7 +170,7 @@ RUN cd /home/$USER/dependencies/diy_soft_gripper_driver_ws && \
     colcon build
 
 
-# Add built diy-gripper package to entrypoint
+# Add built diy-gripper-driver package to entrypoint
 USER root
 RUN sed -i 's|exec "\$@"|source "/home/'"${USER}"'/dependencies/diy_soft_gripper_driver_ws/install/setup.bash"\n&|' /ros_entrypoint.sh
 USER $USER
@@ -179,7 +179,7 @@ USER $USER
 ###################################################################################
 ##    7. stage: Moveit Image from driver Image (description already included)    ##
 ###################################################################################
-FROM  diy_robotarm_driver as diy-robotarm-moveit
+FROM  diy_gripper_driver as diy_robotarm_moveit
 
 # install dependencie packages
 USER root
