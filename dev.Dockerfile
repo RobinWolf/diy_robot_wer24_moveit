@@ -213,20 +213,20 @@ USER $USER
 
 RUN cd /home/"$USER"/py_dependencies/manipulation_tasks && pip install .
 
-# Clone the diy-soft-gripper-driver package into its own workspace
-RUN mkdir -p /home/$USER/dependencies/diy_robot_moveit_ws/src
+# Clone the diy-soft-gripper-driver package into its own workspace      ----> this is only for deployment!
+#RUN mkdir -p /home/$USER/dependencies/diy_robot_moveit_ws/src
 #RUN cd /home/$USER/dependencies/diy_robot_moveit_ws/src && \
 #    git clone https://github.com/RobinWolf/diy_robot_wer24_moveit.git
 
 
 # Build and source the diy-robotarm-wer24-moveit description package and source all dependeicies inside this stage
-RUN cd /home/$USER/dependencies/diy_robot_moveit_ws && \
-   . /opt/ros/$ROS_DISTRO/setup.sh && \
-    . /home/$USER/dependencies/diy_soft_gripper_driver_ws/install/setup.sh && \ 
-    . /home/$USER/dependencies/diy_robotarm_wer24_driver_ws/install/setup.sh && \ 
-    . /home/$USER/dependencies/diy_robot_full_cell_description_ws/install/setup.sh && \
-    . /home/$USER/dependencies/diy_robotarm_wer24_description_ws/install/setup.sh && \
-    . /home/$USER/dependencies/diy_soft_gripper_description_ws/install/setup.sh && \
-    colcon build
+# RUN cd /home/$USER/dependencies/diy_robot_moveit_ws && \
+#    . /opt/ros/$ROS_DISTRO/setup.sh && \
+#     . /home/$USER/dependencies/diy_soft_gripper_driver_ws/install/setup.sh && \ 
+#     . /home/$USER/dependencies/diy_robotarm_wer24_driver_ws/install/setup.sh && \ 
+#     . /home/$USER/dependencies/diy_robot_full_cell_description_ws/install/setup.sh && \
+#     . /home/$USER/dependencies/diy_robotarm_wer24_description_ws/install/setup.sh && \
+#     . /home/$USER/dependencies/diy_soft_gripper_description_ws/install/setup.sh && \
+#     colcon build
 
 
