@@ -137,8 +137,15 @@ USER root
 RUN sed -i 's|exec "\$@"|source "/home/'"${USER}"'/dependencies/diy_robotarm_wer24_driver_ws/install/setup.bash"\n&|' /ros_entrypoint.sh
 USER $USER
 
+
 ###################################################################################
-##     6. sage: Moveit Image from driver Image (description already included)    ##
+##     6. sage: Gripper Driver (includes used Service to open/ close)            ##
+###################################################################################
+
+
+
+###################################################################################
+##     7. sage: Moveit Image from driver Image (description already included)    ##
 ###################################################################################
 FROM  diy_robotarm_driver as diy-robotarm-moveit
 
@@ -159,7 +166,6 @@ RUN DEBIAN_FRONTEND=noninteractive \
 USER $USER
 
 
-
 # Build and source the diy-robotarm-wer24-driver description package and source all dependeicies inside this stage
 RUN cd /home/$USER/dependencies/diy_robotarm_wer24_driver_ws && \
    . /opt/ros/$ROS_DISTRO/setup.sh && \
@@ -169,12 +175,17 @@ RUN cd /home/$USER/dependencies/diy_robotarm_wer24_driver_ws && \
    colcon build
 
 #install dependencies for python interface
+USER root
+RUN apt-get update && apt-get install -y pip
 USER $USER
+
 RUN pip install scipy
 
-RUN mkdir -p /home/"$USER"/py_dependencies
-COPY ./dependencies /home/"$USER"/py_dependencies
+RUN mkdir -p /home/$USER/py_dependencies
+COPY ./dependencies /home/$USER/py_dependencies
+
 USER root
 RUN chown -R "$USER":"$USER" /home/"$USER"/py_dependencies
 USER $USER
+
 RUN cd /home/"$USER"/py_dependencies/manipulation_tasks && pip install .
