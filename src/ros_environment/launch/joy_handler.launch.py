@@ -6,6 +6,12 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 
 
+# call this launch file if you want to move your robot around with an xbox controller in the c- space
+
+## !!! CURRENTLY NOT SUPPORTED !!!
+
+# because servoing isnt implemented for the diy hardware
+
 def generate_launch_description():
     joy_node_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(

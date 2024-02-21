@@ -3,7 +3,7 @@ from rclpy.node import Node
 from tf2_ros.transform_listener import TransformListener
 from tf2_ros import TransformException
 from tf2_ros.buffer import Buffer
-from manipulation_tasks.transform import Affine # import the affine trafo libary from dependencies
+from manipulation_tasks.transform import Affine # import the affine trafo libary from dependencies (only valid in docker container)
 
 
 class BaseNode(Node):
