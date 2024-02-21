@@ -1,1 +1,0 @@
-Moveit Warpper to provide services which can be called in the python package ros_enviroment and your own application.
