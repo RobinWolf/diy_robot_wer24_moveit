@@ -20,7 +20,7 @@ from .util import affine_to_pose
 # TODO use manipulation_tasks protocol for Robot
 
 
-class RobotClient:  #this is the class which gets called in your application
+class RobotClient:  #this is the class which gets called in your application// when calling the init method the clients for the services in moveit_wrapper_node get initialized
     """ 
     TODO description
     """
@@ -63,26 +63,10 @@ class RobotClient:  #this is the class which gets called in your application
             self.gripper_cli = self.node.create_client(SetBool, "/gripper_control")       #modified to bool service 0 open/ 1 close instead of 2 diffrent trigger services
             while not self.open_cli.wait_for_service(timeout_sec=1.0):
                 self.node.get_logger().info("gripper_controller service not available, waiting again...")
-            # self.close_cli = self.node.create_client(SetBool, "/close_gripper")
-            # while not self.close_cli.wait_for_service(timeout_sec=1.0):
-            #     self.node.get_logger().info("close_gripper service not available, waiting again...")
+
         
         # TODO where to get home pose from
-        #self.home_position = [np.pi / 2, -np.pi / 2, np.pi / 2, -np.pi / 2, -np.pi / 2, -np.pi / 2]
         self.home_position = [0.0,0.0,0.0,0.0,0.0,0.0]
-
-        #not really necessary in our case
-        # self.start_servo_client = self.node.create_client(
-        #     Trigger, "servo_node/start_servo")
-
-        # self.stop_servo_client = self.node.create_client(
-        #     Trigger, "servo_node/stop_servo")
-
-        # while not self.start_servo_client.wait_for_service(timeout_sec=1.0):
-        #     self.node.get_logger().info('start_servo_client not available, waiting again...')
-
-        # while not self.stop_servo_client.wait_for_service(timeout_sec=1.0):
-        #     self.node.get_logger().info('stop_servo_client not available, waiting again...')
 
     def home(self) -> bool:
         """
@@ -184,25 +168,6 @@ class RobotClient:  #this is the class which gets called in your application
             self.node.get_logger().info("Opening gripper unsuccessful.")
         return s
 
-    # def close_gripper(self) -> bool:
-    #     """
-    #     TODO docstring
-
-    #     Returns
-    #     -------
-    #     bool
-    #         DESCRIPTION.
-
-    #     """
-    #     s = True
-    #     if not self.is_simulation:
-    #         req = SetBool.Request()
-    #         future = RobotClient.send_request(req, self.close_cli)
-    #         response = self.wait_for_response(future)
-    #         s = response.success
-    #     if not s:
-    #         self.node.get_logger().info("Closing gripper unsuccessful.")
-    #     return s
 
     @staticmethod
     def send_request(request, client):
@@ -236,17 +201,7 @@ class RobotClient:  #this is the class which gets called in your application
                 else:
                     return response
 
-    # def enable_servo(self) -> bool:
-    #     trigger = Trigger.Request()
-    #     future = self.start_servo_client.call_async(trigger)
-    #     response = self.wait_for_response(future)
-    #     return response
 
-    # def disable_servo(self) -> bool:
-    #     trigger = Trigger.Request()
-    #     future = self.stop_servo_client.call_async(trigger)
-    #     response = self.wait_for_response(future)
-    #     return response
 
     def destroy_node(self) -> None:
         self.node.destroy_node()
