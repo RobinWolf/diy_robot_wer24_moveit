@@ -35,9 +35,10 @@ class RobotClient:  #this is the class which gets called in your application// w
 
         """
         if node is None:
-            self.node = BaseNode("robot_client", is_simulation) #starts the BaseNode (lib folder)
+            self.node = BaseNode("robot_client", is_simulation) #starts the BaseNode (lib folder) --> get_transform method
         else:
             self.node = node
+
         self.move_lin_cli = self.node.create_client(MoveToPose, "/move_to_pose_lin")    #connects to the services defined in the moveit_wrapper srvs
         while not self.move_lin_cli.wait_for_service(timeout_sec=1.0):
             self.node.get_logger().info("move_to_pose_lin service not available, waiting some more ...")
@@ -58,9 +59,9 @@ class RobotClient:  #this is the class which gets called in your application// w
             self.node.get_logger().info("reset_planning_group service not available, waiting some more ...")
         self.node.get_logger().info("reset_planning_group service available")
 
-        self.is_simulation = is_simulation  # set to true until the gripper driver works
+        self.is_simulation = is_simulation  # set to true until the gripper driver works so the server node will not called
         if not self.is_simulation:
-            self.gripper_cli = self.node.create_client(SetBool, "/gripper_control")       #modified to bool service 0 open/ 1 close instead of 2 diffrent trigger services
+            self.gripper_cli = self.node.create_client(SetBool, "/gripper_control")       #bool service 0 open/ 1 close instead of 2 diffrent trigger services
             while not self.open_cli.wait_for_service(timeout_sec=1.0):
                 self.node.get_logger().info("gripper_controller service not available, waiting again...")
 
@@ -68,6 +69,8 @@ class RobotClient:  #this is the class which gets called in your application// w
         # TODO where to get home pose from
         self.home_position = [0.0,0.0,0.0,0.0,0.0,0.0]
 
+
+    # this are the methods which can be called in your application which are communicating to the robot
     def home(self) -> bool:
         """
         TODO docstring
