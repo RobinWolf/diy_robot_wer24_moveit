@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="wer24_robotarm">
+
+<!-- set some gloabal arguments (define second order namespaces to avoid name collisions)-->
+  <xacro:arg name="name" default="wer24_robotarm"/>
+  <xacro:arg name="tf_prefix" default=""/>
+  <xacro:arg name="tf_prefix_sub" default="sub_"/>
+  <xacro:arg name="tf_prefix_arm" default="arm_"/>
+  <xacro:arg name="tf_prefix_grip" default="grip_"/>
+
+  <xacro:include filename="$(find diy_robot_wer24_moveit)/srdf/robot_macro.srdf.xacro"/>
+
+  <xacro:robot_srdf
+    tf_prefix="$(arg tf_prefix)"
+    tf_prefix_sub="$(arg tf_prefix_sub)"
+    tf_prefix_arm="$(arg tf_prefix_arm)"
+    tf_prefix_grip="$(arg tf_prefix_grip)"
+  >
+  </xacro:robot_srdf>
+
+</robot>
