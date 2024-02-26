@@ -181,6 +181,11 @@ USER $USER
 ###################################################################################
 FROM  diy_gripper_driver as diy_robotarm_moveit
 
+# Clone the diy-soft-gripper-driver package into its own workspace
+RUN mkdir -p /home/$USER/dependencies/diy_robot_moveit_ws/src
+RUN cd /home/$USER/dependencies/diy_robot_moveit_ws/src && \
+    git clone https://github.com/RobinWolf/diy_robot_wer24_moveit
+
 # install dependencie packages
 USER root
 RUN DEBIAN_FRONTEND=noninteractive \
@@ -205,8 +210,9 @@ USER $USER
 RUN pip install scipy
 
 # copy dependencies folder from local machine --> maybe move to application package or clone from github?
-RUN mkdir -p /home/$USER/py_dependencies
-COPY ./dependencies /home/$USER/py_dependencies
+#RUN mkdir -p /home/$USER/py_dependencies
+#COPY ./dependencies /home/$USER/py_dependencies
+RUN mv /home/$USER/dependencies/diy_robot_moveit_ws/src/diy_robot_wer24_moveit/py_dependencies /home/$USER
 
 USER root
 RUN chown -R "$USER":"$USER" /home/"$USER"/py_dependencies
