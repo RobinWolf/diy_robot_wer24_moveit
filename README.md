@@ -127,15 +127,15 @@ Whenever you call a method from the ````RobotConnection```` class you publish ne
 
 The following Methods from the ````RobotConnection```` class can  be used in the application:
 
-- init
-- home
-- ptp
-- ptp_joint
-- lin
-- request_planning_group
-- toggle_gripper
-- destroy_node
-- get_transform (defined in base class)
+- ````init()````
+- ````home()````
+- ````ptp()````
+- ````ptp_joint()````
+- ````lin()````
+- ````request_planning_group()````
+- ````toggle_gripper()````
+- ````destroy_node()````
+- ````get_transform()```` (defined in base class)
 
 This package contains also classes and methods to handle full robot application scenes for example with cameras. We will use the ````RobotConnection```` class only. That's why the other functionalities of the ros_enviroment package are not mentioned in this scope.
 
