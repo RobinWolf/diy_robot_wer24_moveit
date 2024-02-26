@@ -23,14 +23,12 @@ docker build \
 ##                            Run the container                             ##
 ##############################################################################
 SRC_CONTAINER=/home/hephaestus/ros2_ws/src
-SRC_HOST="$(pwd)"/src
 
 docker run \
   --name diy_robotarm_moveit\
   --rm \
   -it \
   --net=host \
-  -v "$SRC_HOST":"$SRC_CONTAINER":rw \
   -e DISPLAY="$DISPLAY" \
   diy-robotarm-moveit/ros-render:"$ROS_DISTRO" bash
 
