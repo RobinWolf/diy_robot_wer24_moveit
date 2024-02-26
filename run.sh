@@ -30,6 +30,6 @@ docker run \
   -it \
   --net=host \
   -e DISPLAY="$DISPLAY" \
-  diy-robotarm-moveit/ros-render:"$ROS_DISTRO" bash
+  diy-robotarm-moveit/ros-render:"$ROS_DISTRO"
 
 # display and network access is already passed to the container
