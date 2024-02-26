@@ -16,8 +16,8 @@ docker build \
   --build-arg ROS_DISTRO="$ROS_DISTRO" \
   --build-arg UID="$uid" \
   --build-arg GID="$gid" \
-  -f dev.Dockerfile \
-  -t diy-robotarm-moveit-dev/ros-render:"$ROS_DISTRO" .
+  -f Dockerfile \
+  -t diy-robotarm-moveit/ros-render:"$ROS_DISTRO" .
 
 ##############################################################################
 ##                            Run the container                             ##
@@ -32,6 +32,6 @@ docker run \
   --net=host \
   -v "$SRC_HOST":"$SRC_CONTAINER":rw \
   -e DISPLAY="$DISPLAY" \
-  diy-robotarm-moveit-dev/ros-render:"$ROS_DISTRO" bash
+  diy-robotarm-moveit/ros-render:"$ROS_DISTRO" bash
 
 # display and network access is already passed to the container
