@@ -24,6 +24,7 @@ The following graphics try to show how the different packages are connected to e
 ![dataflow_application_moveit](images/dataflow.png)
 
 We will not need the whole scope of the moveit_wrapper, ros_enviroment and py_dependencies folders. In the following sections we will explain the packages in detail and mention, what's important for our application implementation.
+
 If you want to know how to set up and work with the appication package please refer to this package: https://github.com/RobinWolf/diy_robot_application
 
 ## Moveit2 Configuration
