@@ -59,7 +59,7 @@ class RobotClient:  #this is the class which gets called in your application// w
             self.node.get_logger().info("reset_planning_group service not available, waiting some more ...")
         self.node.get_logger().info("reset_planning_group service available")
 
-        self.is_simulation = is_simulation  # set to true until the gripper driver works so the server node will not called
+        self.is_simulation = is_simulation  # connects to the gripper control server defined in the gripper_driver package
         if not self.is_simulation:
             self.gripper_cli = self.node.create_client(SetBool, "/gripper_control")       #bool service 0 open/ 1 close instead of 2 diffrent trigger services
             while not self.gripper_cli.wait_for_service(timeout_sec=1.0):
