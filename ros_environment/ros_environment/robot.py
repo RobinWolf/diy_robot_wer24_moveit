@@ -64,6 +64,8 @@ class RobotClient:  #this is the class which gets called in your application// w
             self.gripper_cli = self.node.create_client(SetBool, "/gripper_control")       #bool service 0 open/ 1 close instead of 2 diffrent trigger services
             while not self.open_cli.wait_for_service(timeout_sec=1.0):
                 self.node.get_logger().info("gripper_controller service not available, waiting again...")
+            self.node.get_logger().info("gripper_control service available")
+
 
         
         # TODO where to get home pose from
