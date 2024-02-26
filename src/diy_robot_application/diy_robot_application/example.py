@@ -11,8 +11,8 @@ def joint_absolute_ptp_test(robot):
     #home the robot before you start the test scedule
     robot.home()
 
-    #robot joint movement /axis 2  pi/4 = 45°
-    robot.ptp_joint([0.0, np.pi/4, 0.0, 0.0, 0.0, 0.0])
+    #robot joint movement /axis 2  pi/4 = 45° , floats required!
+    robot.ptp_joint([np.pi/4, 0.0, 0.0, 0.0, 0.0, 0.0])
 
     #print current transform/ pose of the tcp_link
     current_pose = robot.node.get_transform('grip_tcp_link', 'world')
@@ -148,6 +148,9 @@ def main(args=None):
 
     # run one of the test scedules to make yourself familiar with the different movements
     joint_absolute_ptp_test(robot)
+
+    robot.home()
+
 
     # destroy the robot node, stop execution
     robot.destroy_node()
