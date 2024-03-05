@@ -9,7 +9,7 @@
   <xacro:macro name="robot_srdf" params="tf_prefix tf_prefix_sub tf_prefix_arm tf_prefix_grip">
     <!--GROUPS - Representation of a set of joints and links. This can be useful for specifying DOF to plan for, defining arms, end effectors, etc-->
     <group name="wer24_robotarm">
-      <chain base_link="${tf_prefix}${tf_prefix_sub}subframe_link" tip_link="${tf_prefix}${tf_prefix_grip}base_link" />
+      <chain base_link="${tf_prefix}${tf_prefix_sub}subframe_link" tip_link="${tf_prefix}${tf_prefix_grip}tcp_link" />
     </group>
 
     <!--DISABLE COLLISIONS - By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
