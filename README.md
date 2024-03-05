@@ -21,7 +21,7 @@ Using differnet docker containers is very likely, because this makes the whole i
 
 The following graphics try to show how the different packages are connected to each other and how the data-flow from the python application to moveit is done:
 
-![dataflow_application_moveit](images/dataflow.png)
+![dataflow_application_moveit](images/dataflow_new.png)
 
 We will not need the whole scope of the moveit_wrapper, ros_enviroment and py_dependencies folders. In the following sections we will explain the packages in detail and mention, what's important for our application implementation.
 
