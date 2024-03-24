@@ -75,7 +75,7 @@ namespace moveit_wrapper
 
             moveit_msgs::msg::RobotTrajectory trajectory;
             const double jump_threshold = 0.0;
-            const double eef_step = 0.001;
+            const double eef_step = 0.01;                   //Set this interpolation-step parameter to 0.01m instaed of 0.001m - try to fix the lin communication timeout problem
             double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
             if(fraction > 0.0) {
