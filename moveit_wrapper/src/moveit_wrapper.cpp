@@ -70,13 +70,18 @@ namespace moveit_wrapper
         {
             _move_group->stop();
             _move_group->clearPoseTargets();
+
+            // Set the maximum velocity scaling factor
+            double max_velocity_scaling_factor = 0.5; // Example: 50% of maximum velocity
+            _move_group->setMaxVelocityScalingFactor(max_velocity_scaling_factor);
+
             std::vector<geometry_msgs::msg::Pose> waypoints;
             waypoints.push_back(request->pose);
 
             moveit_msgs::msg::RobotTrajectory trajectory;
             const double jump_threshold = 0.0;
             const double eef_step = 0.01;                   //Set this interpolation-step parameter to 0.01m instaed of 0.001m - try to fix the lin communication timeout problem
-            double fraction = _move_group->computeCartesianPath(waypoints, trajectory); // eef_step, jump_threshold
+            double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
             if(fraction > 0.0) {
                 success = true;
@@ -95,6 +100,11 @@ namespace moveit_wrapper
         {
             _move_group->stop();
             _move_group->clearPoseTargets();
+
+            // Set the maximum velocity scaling factor
+            double max_velocity_scaling_factor = 1; // Example: 50% of maximum velocity
+            _move_group->setMaxVelocityScalingFactor(max_velocity_scaling_factor);
+
             _move_group->setPoseTarget(request->pose);
             moveit::planning_interface::MoveGroupInterface::Plan my_plan;
             success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
@@ -114,51 +124,55 @@ namespace moveit_wrapper
         {
             _move_group->stop();
             _move_group->clearPoseTargets();
+
+            // Set the maximum velocity scaling factor
+            double max_velocity_scaling_factor = 1; // Example: 50% of maximum velocity
+            _move_group->setMaxVelocityScalingFactor(max_velocity_scaling_factor);
             success = ptp_joint(request->joint_position);
         }
         response->success = success;
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_joint_position callback executed.");
     }
 
-    bool MoveitWrapper::lin_cart(const geometry_msgs::msg::Pose &pose)
-    {
-        bool success = false;
-        if(_i_move_group_initialized)
-        {
-            _move_group->stop();
-            _move_group->clearPoseTargets();
-            std::vector<geometry_msgs::msg::Pose> waypoints;
-            waypoints.push_back(pose);
+    // bool MoveitWrapper::lin_cart(const geometry_msgs::msg::Pose &pose)
+    // {
+    //     bool success = false;
+    //     if(_i_move_group_initialized)
+    //     {
+    //         _move_group->stop();
+    //         _move_group->clearPoseTargets();
+    //         std::vector<geometry_msgs::msg::Pose> waypoints;
+    //         waypoints.push_back(pose);
 
-            moveit_msgs::msg::RobotTrajectory trajectory;
-            const double jump_threshold = 0.0;
-            const double eef_step = 0.001;
-            double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
+    //         moveit_msgs::msg::RobotTrajectory trajectory;
+    //         const double jump_threshold = 0.0;
+    //         const double eef_step = 0.01;
+    //         double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
-            if(fraction > 0.0) {
-                success = true;
-                _move_group->execute(trajectory);
-            }
-        }
-        return success;
-    }
+    //         if(fraction > 0.0) {
+    //             success = true;
+    //             _move_group->execute(trajectory);
+    //         }
+    //     }
+    //     return success;
+    // }
 
-    bool MoveitWrapper::ptp_cart(const geometry_msgs::msg::Pose &pose)
-    {
-        bool success = false;
-        if(_i_move_group_initialized)
-        {
-            _move_group->stop();
-            _move_group->clearPoseTargets();
-            _move_group->setPoseTarget(pose);
-            moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-            success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-            if(success) {
-                _move_group->move();
-            }
-        }
-        return success;
-    }
+    // bool MoveitWrapper::ptp_cart(const geometry_msgs::msg::Pose &pose)
+    // {
+    //     bool success = false;
+    //     if(_i_move_group_initialized)
+    //     {
+    //         _move_group->stop();
+    //         _move_group->clearPoseTargets();
+    //         _move_group->setPoseTarget(pose);
+    //         moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+    //         success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+    //         if(success) {
+    //             _move_group->move();
+    //         }
+    //     }
+    //     return success;
+    // }
 
     bool MoveitWrapper::ptp_joint(const std::vector<double> joint_position)
     {
