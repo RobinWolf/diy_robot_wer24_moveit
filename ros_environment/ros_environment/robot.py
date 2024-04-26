@@ -125,7 +125,7 @@ class RobotClient:  #this is the class which gets called in your application// w
         response = self.wait_for_response(future)
         return response.success
 
-    def lin(self, pose: Affine) -> bool:
+    def lin(self, pose: Affine, velocityscaling) -> bool:
         """
         TODO docstring
 
@@ -141,6 +141,7 @@ class RobotClient:  #this is the class which gets called in your application// w
         """
         req = MoveToPose.Request()
         req.pose = affine_to_pose(pose)
+        req.speedscaling = velocityscaling
         future = RobotClient.send_request(req, self.move_lin_cli)
         response = self.wait_for_response(future)
         return response.success

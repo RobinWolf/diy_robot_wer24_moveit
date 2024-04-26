@@ -1,3 +1,4 @@
 geometry_msgs/Pose pose
+double velocityscaling
 ---
 bool success
