@@ -84,7 +84,7 @@ class RobotClient:  #this is the class which gets called in your application// w
         """
         return self.ptp_joint(self.home_position)  # and gripper_success
 
-    def ptp(self, pose: Affine) -> bool:
+    def ptp(self, pose: Affine, velocityscaling) -> bool:
         """
         TODO docstring
 
@@ -100,6 +100,7 @@ class RobotClient:  #this is the class which gets called in your application// w
         """
         req = MoveToPose.Request()
         req.pose = affine_to_pose(pose)
+        req.velocityscaling = velocityscaling
         future = RobotClient.send_request(req, self.move_ptp_cli)
         response = self.wait_for_response(future)
         return response.success
@@ -141,7 +142,7 @@ class RobotClient:  #this is the class which gets called in your application// w
         """
         req = MoveToPose.Request()
         req.pose = affine_to_pose(pose)
-        req.speedscaling = velocityscaling
+        req.velocityscaling = velocityscaling
         future = RobotClient.send_request(req, self.move_lin_cli)
         response = self.wait_for_response(future)
         return response.success
