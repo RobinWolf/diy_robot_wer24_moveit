@@ -88,7 +88,7 @@ namespace moveit_wrapper
 
             
             // Rescale the timestamps of the trajectory based on the velocity scaling factor
-            rescaleTrajectory(trajectory, velocity_scaling);
+            rescaleTrajectory(trajectory, request->velocityscaling);
 
             if(fraction > 0.0) {
                 success = true;
