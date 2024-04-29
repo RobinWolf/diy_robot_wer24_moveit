@@ -1,5 +1,6 @@
 #include <moveit_wrapper/moveit_wrapper.h>
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
+#include <ros/ros.h>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -93,8 +94,6 @@ namespace moveit_wrapper
 
             if (fraction >= 1.0)
             {
-                success = true;
-
                 ROS_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
 
                 // Compute time parameterization to also provide velocities
@@ -111,8 +110,12 @@ namespace moveit_wrapper
                 rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
                 current_plan_->planning_time_ = (ros::WallTime::now() - start).toSec();
 
-                _move_group->execute(current_plan_);
+                if(success) {
+                     _move_group->execute(my_plan);
+                 }
             }
+
+
             // if(fraction > 0.0) {
             //     success = true;
             //     //_move_group->execute(trajectory);
