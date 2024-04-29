@@ -45,6 +45,7 @@ find_package(pluginlib REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(moveit_servo REQUIRED)
 find_package(moveit_ros_planning REQUIRED)
+find_package(roscpp REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
