@@ -41,7 +41,7 @@ namespace moveit_wrapper
             bool lin_cart(const geometry_msgs::msg::Pose &pose);
             bool ptp_cart(const geometry_msgs::msg::Pose &pose);
             bool ptp_joint(const std::vector<double> joint_position);
-            void MoveitWrapper::rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling);
+            void rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling);
 
     };
 }
