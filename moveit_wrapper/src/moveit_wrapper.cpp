@@ -75,6 +75,7 @@ namespace moveit_wrapper
             _move_group->clearPoseTargets();
 
             // Set the maximum velocity scaling factor
+            double scaling = request->velocityscaling
             _move_group->setMaxVelocityScalingFactor(request->velocityscaling);
 
             std::vector<geometry_msgs::msg::Pose> waypoints;
@@ -88,7 +89,7 @@ namespace moveit_wrapper
 
             
             // Rescale the timestamps of the trajectory based on the velocity scaling factor
-            rescaleTrajectory(trajectory, request->velocityscaling);
+            rescaleTrajectory(trajectory, scaling);
 
             if(fraction > 0.0) {
                 success = true;
