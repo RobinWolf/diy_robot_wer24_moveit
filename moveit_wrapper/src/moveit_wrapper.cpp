@@ -163,15 +163,19 @@ namespace moveit_wrapper
 
     void MoveitWrapper::rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling) {
 
+        double velocity_scaling = 1/velocity_scaling;
+    
         // Loop through each point in the trajectory and rescale the timestamps
         for (auto& point : trajectory.joint_trajectory.points) {
             // Convert the time_from_start to nanoseconds, scale it, and then convert it back to ros::Duration
-            uint64_t time_ns = (point.time_from_start.sec * 1e9) + point.time_from_start.nanosec;
-            time_ns *= velocity_scaling;
+            uint64_t original_time_ns = (point.time_from_start.sec * 1e9) + point.time_from_start.nanosec;
+            time_ns = original_time_ns * velocity_scaling;
+            RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Original time: %llu", original_time_ns);
 
             // Update the time_from_start with the scaled time
             point.time_from_start.sec = time_ns / 1e9;
             point.time_from_start.nanosec = time_ns % static_cast<uint64_t>(1e9);
+            RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Rescaled time: %llu", time_ns);
         }
 
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "timestamp rescaling executed.");
