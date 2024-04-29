@@ -90,8 +90,8 @@ namespace moveit_wrapper
                 success = true;
                 //_move_group->execute(trajectory);
                 moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-                my_plan.trajectory_ = trajectory;
-                _move_group.execute(my_plan);
+                my_plan->trajectory_ = trajectory;
+                _move_group->execute(my_plan);
             }
         }
         response->success = success;
