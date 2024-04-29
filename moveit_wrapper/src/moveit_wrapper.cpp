@@ -167,8 +167,9 @@ namespace moveit_wrapper
 
         // Loop through each point in the trajectory and rescale the timestamps
         for (auto& point : trajectory.joint_trajectory.points) {
-            // Scale the time_from_start of each trajectory point
-            point.time_from_start *= time_scaling;
+            // Convert the time_from_start to seconds, scale it, and then convert it back to ros::Duration
+            double scaled_seconds = point.time_from_start.toSec() * time_scaling;
+            point.time_from_start = ros::Duration(scaled_seconds);
         }
 
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "timestamp rescaling executed.");
