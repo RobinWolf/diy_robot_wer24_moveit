@@ -96,8 +96,8 @@ namespace moveit_wrapper
             {
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Achieved %f %% of Cartesian path", fraction * 100.);
                 // Compute time parameterization to also provide velocities
-                robot_trajectory::RobotTrajectory rt(move_group_->getRobotModel(), move_group_->getName());
-                rt.setRobotTrajectoryMsg(*move_group_->getCurrentState(), trajectory);
+                robot_trajectory::RobotTrajectory rt(_move_group_->getRobotModel(), _move_group_->getName());
+                rt.setRobotTrajectoryMsg(*_move_group_->getCurrentState(), trajectory);
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
 
                 // Recalculate timestamps in reference to velocityscaling factor
