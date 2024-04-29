@@ -169,5 +169,7 @@ namespace moveit_wrapper
             // Scale the time_from_start of each trajectory point
             point.time_from_start *= scaling_factor;
         }
+
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "timestamp rescaling executed.");
     }
 }
