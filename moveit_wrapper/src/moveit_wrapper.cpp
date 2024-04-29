@@ -83,8 +83,12 @@ namespace moveit_wrapper
 
             moveit_msgs::msg::RobotTrajectory trajectory;
             const double jump_threshold = 0.0;
-            const double eef_step = 0.01;                   //Set this interpolation-step parameter to 0.01m instaed of 0.001m
+            const double eef_step = 0.001;                   
             double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
+
+            
+            // Rescale the timestamps of the trajectory based on the velocity scaling factor
+            rescaleTrajectory(trajectory, velocity_scaling);
 
             if(fraction > 0.0) {
                 success = true;
@@ -154,5 +158,16 @@ namespace moveit_wrapper
             }
         }
         return success;
+    }
+
+    void rescaleTrajectory(moveit_msgs::RobotTrajectory& trajectory, double velocity_scaling) {
+
+        double time_scaling = 1.0 / velocity_scaling;
+
+        // Loop through each point in the trajectory and rescale the timestamps
+        for (auto& point : trajectory.joint_trajectory.points) {
+            // Scale the time_from_start of each trajectory point
+            point.time_from_start *= scaling_factor;
+        }
     }
 }
