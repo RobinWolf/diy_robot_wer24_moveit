@@ -1,4 +1,5 @@
 #include <moveit_wrapper/moveit_wrapper.h>
+#include <moveit/trajectory_processing/iterative_time_parameterization.h>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -70,14 +71,15 @@ namespace moveit_wrapper
     {
         bool success = false;
         if(_i_move_group_initialized)
-        {
+        {   
             _move_group->stop();
             _move_group->clearPoseTargets();
 
-            // Set the maximum velocity scaling factor
-            double scaling = request->velocityscaling;
-            _move_group->setMaxVelocityScalingFactor(request->velocityscaling);
 
+            // Set the maximum velocity scaling factor
+            _move_group->setMaxVelocityScalingFactor(request->velocityscaling);
+            
+            // Set goal state
             std::vector<geometry_msgs::msg::Pose> waypoints;
             waypoints.push_back(request->pose);
 
@@ -87,17 +89,37 @@ namespace moveit_wrapper
             const double eef_step = 0.001;                   
             double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
-            
-            // Rescale the timestamps of the trajectory based on the velocity scaling factor
-            rescaleTrajectory(trajectory, scaling);
+            ros::WallTime start = ros::WallTime::now();
 
-            if(fraction > 0.0) {
+            if (fraction >= 1.0)
+            {
                 success = true;
-                //_move_group->execute(trajectory);
-                moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-                my_plan.trajectory_ = trajectory;
-                _move_group->execute(my_plan);
+
+                ROS_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
+
+                // Compute time parameterization to also provide velocities
+                robot_trajectory::RobotTrajectory rt(move_group_->getRobotModel(), move_group_->getName());
+                rt.setRobotTrajectoryMsg(*move_group_->getCurrentState(), trajectory);
+                trajectory_processing::IterativeParabolicTimeParameterization iptp;
+
+                // Recalculate timestamps in reference to velocityscaling factor
+                bool success = iptp.computeTimeStamps(rt, request->velocityscaling);
+                ROS_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
+
+                // Store trajectory in current_plan_
+                current_plan_ = std::make_shared<moveit::planning_interface::MoveGroupInterface::Plan>();
+                rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
+                current_plan_->planning_time_ = (ros::WallTime::now() - start).toSec();
+
+                _move_group->execute(current_plan_);
             }
+            // if(fraction > 0.0) {
+            //     success = true;
+            //     //_move_group->execute(trajectory);
+            //     moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+            //     my_plan.trajectory_ = trajectory;
+            //     _move_group->execute(my_plan);
+            // }
         }
         response->success = success;
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_lin callback executed.");
