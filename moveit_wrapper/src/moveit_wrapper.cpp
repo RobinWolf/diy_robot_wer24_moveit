@@ -1,6 +1,6 @@
 #include <moveit_wrapper/moveit_wrapper.h>
 #include <moveit/trajectory_processing/iterative_time_parameterization.h>
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -90,7 +90,7 @@ namespace moveit_wrapper
             const double eef_step = 0.001;                   
             double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
-            ros::WallTime start = ros::WallTime::now();
+            rclcpp::Time start = rclcpp::Clock().now();
 
             if (fraction >= 1.0)
             {
@@ -99,10 +99,10 @@ namespace moveit_wrapper
                 // Compute time parameterization to also provide velocities
                 robot_trajectory::RobotTrajectory rt(move_group_->getRobotModel(), move_group_->getName());
                 rt.setRobotTrajectoryMsg(*move_group_->getCurrentState(), trajectory);
-                trajectory_processing::IterativeParabolicTimeParameterization iptp;
+                trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
 
                 // Recalculate timestamps in reference to velocityscaling factor
-                bool success = iptp.computeTimeStamps(rt, request->velocityscaling);
+                bool success = time_parameterization.computeTimeStamps.computeTimeStamps(rt, request->velocityscaling);
                 ROS_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
 
                 // Store trajectory in current_plan_
@@ -111,7 +111,7 @@ namespace moveit_wrapper
                 current_plan_->planning_time_ = (ros::WallTime::now() - start).toSec();
 
                 if(success) {
-                     _move_group->execute(my_plan);
+                     _move_group->execute(current_plan_);
                  }
             }
 
