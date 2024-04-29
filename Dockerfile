@@ -199,7 +199,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
     ros-$ROS_DISTRO-controller-manager \
     ros-$ROS_DISTRO-sensor-msgs-py  \
     ros-$ROS_DISTRO-joy*  \
-    ros-$ROS_DISTRO-rqt-controller-manager
+    ros-$ROS_DISTRO-rqt-controller-manager \
+    ros-$ROS_DISTRO-roscpp
 USER $USER
 
 #install dependencies for python interface
