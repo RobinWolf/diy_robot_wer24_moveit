@@ -94,8 +94,7 @@ namespace moveit_wrapper
 
             if (fraction >= 1.0)
             {
-                ROS_INFO("Achieved %f %% of Cartesian path", fraction * 100.);
-
+                RCLCPP_INFO(logger_, "Achieved %f %% of Cartesian path", fraction * 100.);
                 // Compute time parameterization to also provide velocities
                 robot_trajectory::RobotTrajectory rt(move_group_->getRobotModel(), move_group_->getName());
                 rt.setRobotTrajectoryMsg(*move_group_->getCurrentState(), trajectory);
@@ -103,8 +102,7 @@ namespace moveit_wrapper
 
                 // Recalculate timestamps in reference to velocityscaling factor
                 bool success = time_parameterization.computeTimeStamps.computeTimeStamps(rt, request->velocityscaling);
-                ROS_INFO("Computing time stamps %s", success ? "SUCCEDED" : "FAILED");
-
+                RCLCPP_INFO(logger_, "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
                 current_plan_ = std::make_shared<moveit::planning_interface::MoveGroupInterface::Plan>();
                 rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
