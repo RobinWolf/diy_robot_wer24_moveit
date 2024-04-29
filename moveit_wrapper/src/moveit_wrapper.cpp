@@ -80,14 +80,18 @@ namespace moveit_wrapper
             std::vector<geometry_msgs::msg::Pose> waypoints;
             waypoints.push_back(request->pose);
 
+
             moveit_msgs::msg::RobotTrajectory trajectory;
             const double jump_threshold = 0.0;
-            const double eef_step = 0.001;                   //Set this interpolation-step parameter to 0.01m instaed of 0.001m
+            const double eef_step = 0.01;                   //Set this interpolation-step parameter to 0.01m instaed of 0.001m
             double fraction = _move_group->computeCartesianPath(waypoints, eef_step, jump_threshold, trajectory);
 
             if(fraction > 0.0) {
                 success = true;
-                _move_group->execute(trajectory);
+                //_move_group->execute(trajectory);
+                moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+                my_plan.trajectory_ = trajectory;
+                move_group.execute(my_plan);
             }
         }
         response->success = success;
