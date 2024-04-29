@@ -75,7 +75,7 @@ namespace moveit_wrapper
             _move_group->clearPoseTargets();
 
             // Set the maximum velocity scaling factor
-            double scaling = request->velocityscaling
+            double scaling = request->velocityscaling;
             _move_group->setMaxVelocityScalingFactor(request->velocityscaling);
 
             std::vector<geometry_msgs::msg::Pose> waypoints;
