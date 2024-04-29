@@ -169,7 +169,7 @@ namespace moveit_wrapper
         for (auto& point : trajectory.joint_trajectory.points) {
             // Convert the time_from_start to nanoseconds, scale it, and then convert it back to ros::Duration
             uint64_t original_time_ns = (point.time_from_start.sec * 1e9) + point.time_from_start.nanosec;
-            time_ns = original_time_ns * scaling;
+            uint64_t time_ns = original_time_ns * scaling;
             RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Original time: %llu", original_time_ns);
 
             // Update the time_from_start with the scaled time
