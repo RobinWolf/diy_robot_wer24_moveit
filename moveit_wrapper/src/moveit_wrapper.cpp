@@ -161,7 +161,7 @@ namespace moveit_wrapper
         return success;
     }
 
-    void rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling) {
+    void MoveitWrapper::rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling) {
 
         double time_scaling = 1.0 / velocity_scaling;
 
