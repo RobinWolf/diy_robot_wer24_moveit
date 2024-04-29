@@ -93,10 +93,10 @@ namespace moveit_wrapper
 
             if(fraction > 0.0) {
                 success = true;
-                _move_group->execute(trajectory);
-                //moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-                //my_plan.trajectory_ = trajectory;
-                //_move_group->execute(my_plan);
+                //_move_group->execute(trajectory);
+                moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+                my_plan.trajectory_ = trajectory;
+                _move_group->execute(my_plan);
             }
         }
         response->success = success;
