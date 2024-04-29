@@ -93,10 +93,10 @@ namespace moveit_wrapper
 
             if(fraction > 0.0) {
                 success = true;
-                //_move_group->execute(trajectory);
-                moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-                my_plan.trajectory_ = trajectory;
-                _move_group->execute(my_plan);
+                _move_group->execute(trajectory);
+                //moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+                //my_plan.trajectory_ = trajectory;
+                //_move_group->execute(my_plan);
             }
         }
         response->success = success;
@@ -163,18 +163,16 @@ namespace moveit_wrapper
 
     void MoveitWrapper::rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling) {
 
-        double scaling_factor = 1.0 / velocity_scaling;
-
         // Loop through each point in the trajectory and rescale the timestamps
         for (auto& point : trajectory.joint_trajectory.points) {
-                // Convert the time_from_start to nanoseconds, scale it, and then convert it back to ros::Duration
-                uint64_t time_ns = (point.time_from_start.sec * 1e9) + point.time_from_start.nanosec;
-                time_ns *= scaling_factor;
+            // Convert the time_from_start to nanoseconds, scale it, and then convert it back to ros::Duration
+            uint64_t time_ns = (point.time_from_start.sec * 1e9) + point.time_from_start.nanosec;
+            time_ns *= velocity_scaling;
 
-                // Update the time_from_start with the scaled time
-                point.time_from_start.sec = time_ns / 1e9;
-                point.time_from_start.nanosec = time_ns % static_cast<uint64_t>(1e9);
-            }
+            // Update the time_from_start with the scaled time
+            point.time_from_start.sec = time_ns / 1e9;
+            point.time_from_start.nanosec = time_ns % static_cast<uint64_t>(1e9);
+        }
 
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "timestamp rescaling executed.");
     }
