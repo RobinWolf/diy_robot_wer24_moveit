@@ -99,7 +99,7 @@ namespace moveit_wrapper
                 rt.setRobotTrajectoryMsg(*_move_group->getCurrentState(), trajectory);
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
                 // Recalculate timestamps in reference to velocityscaling factor
-                bool success = time_parameterization.computeTimeStamps(rt, request->velocityscaling);
+                bool success = time_parameterization.computeTimeStamps(rt, request->velocity_scaling);
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
                 moveit::planning_interface::MoveGroupInterface::Plan current_plan_;
