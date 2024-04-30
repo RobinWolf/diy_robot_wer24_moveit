@@ -6,6 +6,7 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_wrapper/srv/move_to_pose.hpp>
 #include <moveit_wrapper/srv/move_to_joint_position.hpp>
+#include <moveit_wrapper/srv/SetVelocity.hpp>
 #include <moveit_wrapper/srv/string.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <stdlib.h>
@@ -23,12 +24,17 @@ namespace moveit_wrapper
             rclcpp::CallbackGroup::SharedPtr _pose_target_ptp_group;
             rclcpp::CallbackGroup::SharedPtr _joint_position_target_group;
             rclcpp::CallbackGroup::SharedPtr _reset_planning_group_group;
+            rclcpp::CallbackGroup::SharedPtr _velocity_target_group;
+
             rclcpp::Service<moveit_wrapper::srv::MoveToPose>::SharedPtr _move_to_pose_lin;
             rclcpp::Service<moveit_wrapper::srv::MoveToPose>::SharedPtr _move_to_pose_ptp;
             rclcpp::Service<moveit_wrapper::srv::MoveToJointPosition>::SharedPtr _move_to_joint_position;
             rclcpp::Service<moveit_wrapper::srv::String>::SharedPtr _reset_planning_group;
+            rclcpp::Service<moveit_wrapper::srv::SetVelocity>::SharedPtr _setVelocityScaling;
+
             std::string _planning_group;
             bool _i_move_group_initialized;
+
             std::shared_ptr<moveit::planning_interface::MoveGroupInterface> _move_group;
             void move_to_pose_lin(const std::shared_ptr<moveit_wrapper::srv::MoveToPose::Request> request,
                 std::shared_ptr<moveit_wrapper::srv::MoveToPose::Response> response);
@@ -41,7 +47,8 @@ namespace moveit_wrapper
             bool lin_cart(const geometry_msgs::msg::Pose &pose);
             bool ptp_cart(const geometry_msgs::msg::Pose &pose);
             bool ptp_joint(const std::vector<double> joint_position);
-            void rescaleTrajectory(moveit_msgs::msg::RobotTrajectory trajectory, double velocity_scaling);
+            bool setVelocityScaling(const std::shared_ptr<moveit_wrapper::srv::SetVelocity::Request> request,
+                std::shared_ptr<moveit_wrapper::srv::SetVelocity::Response> response)
 
     };
 }
