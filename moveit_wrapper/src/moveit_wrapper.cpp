@@ -76,7 +76,7 @@ namespace moveit_wrapper
             _move_group->stop();
             _move_group->clearPoseTargets();
 
-
+            //https://github.com/moveit/moveit2/blob/main/moveit_ros/visualization/motion_planning_rviz_plugin/src/motion_planning_frame_planning.cpp
             // Set the maximum velocity scaling factor
             _move_group->setMaxVelocityScalingFactor(request->velocityscaling);
             
@@ -96,7 +96,7 @@ namespace moveit_wrapper
             {
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Achieved %f %% of Cartesian path", fraction * 100.);
                 // Compute time parameterization to also provide velocities
-                robot_trajectory::RobotTrajectory rt(_move_group_->getRobotModel(), _move_group_->getName());
+                robot_trajectory::RobotTrajectory rt(_move_group->getRobotModel(), _move_group->getName());
                 rt.setRobotTrajectoryMsg(*_move_group_->getCurrentState(), trajectory);
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
 
