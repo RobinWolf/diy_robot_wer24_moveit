@@ -8,6 +8,7 @@ using std::placeholders::_3;
 using std::placeholders::_4;
 
 
+
 namespace moveit_wrapper
 {
     MoveitWrapper::MoveitWrapper(const rclcpp::NodeOptions &options) : Node("moveit_wrapper", options)
@@ -34,10 +35,9 @@ namespace moveit_wrapper
         _reset_planning_group = this->create_service<moveit_wrapper::srv::String>("reset_planning_group", std::bind(&MoveitWrapper::reset_planning_group, this, _1, _2), rmw_qos_profile_services_default, _reset_planning_group_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
 
-        _velocity_target_group = this->create_service<moveit_wrapper::srv::SetVelocity>("velocity_scaling", std::bind(&MoveitWrapper::setVelocityScaling, this, _1, _2), rmw_qos_profile_services_default, _velocity_target_group);
+        _velocity_target_group = this->create_service<moveit_wrapper::srv::SetVelocity>("scale_velocity", std::bind(&MoveitWrapper::setVelocityScaling, this, _1, _2), rmw_qos_profile_services_default, _velocity_target_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
-//        _move_to_pose = this->create_service<moveit_wrapper::srv::MoveToPose>("move_to_pose", std::bind(&MoveitWrapper::move_to_pose, this, _1, _2));
-//        _move_to_joint_position = this->create_service<moveit_wrapper::srv::MoveToJointPosition>("move_to_joint_position", std::bind(&MoveitWrapper::move_to_joint_position, this, _1, _2));
+
         rclcpp::Rate loop_rate(1);
         loop_rate.sleep();
 
