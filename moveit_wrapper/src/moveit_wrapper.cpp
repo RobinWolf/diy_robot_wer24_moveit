@@ -182,13 +182,11 @@ namespace moveit_wrapper
         if(_i_move_group_initialized)
         {
              // Set the maximum velocity scaling factor
-            double factor = request->velocity_scaling;
-            //_veloctiy_target = factor;
-            _move_group->setMaxVelocityScalingFactor(factor);
+            _veloctiy_target = request->velocity_scaling;
+            _move_group->setMaxVelocityScalingFactor(_veloctiy_target);
             success = true;
         }
         response->success = success;
-        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "rescale velocity to %f %% of joint_limits executed",factor * 100.);
-       
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "rescale velocity to %f %% of joint_limits executed",_veloctiy_target * 100.);
     }
 }
