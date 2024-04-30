@@ -131,7 +131,7 @@ namespace moveit_wrapper
             _move_group->clearPoseTargets();
 
             // Set the maximum velocity scaling factor
-            _move_group->setMaxVelocityScalingFactor(request->velocityscaling);
+            _move_group->setMaxVelocityScalingFactor(request->velocity_scaling);
 
             _move_group->setPoseTarget(request->pose);
             moveit::planning_interface::MoveGroupInterface::Plan my_plan;
