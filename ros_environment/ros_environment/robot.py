@@ -5,7 +5,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from rclpy.task import Future
-from moveit_wrapper.srv import MoveToPose, MoveToJointPosition, String  #import the custom service interfaces from the wrapper package
+from moveit_wrapper.srv import MoveToPose, MoveToJointPosition, SetVelocity, String  #import the custom service interfaces from the wrapper package
 from geometry_msgs.msg import Pose as PoseMsg
 from manipulation_tasks.transform import Affine
 from geometry_msgs.msg import Quaternion, Point
@@ -58,6 +58,11 @@ class RobotClient:  #this is the class which gets called in your application// w
         while not self.reset_planning_group_cli.wait_for_service(timeout_sec=1.0):
             self.node.get_logger().info("reset_planning_group service not available, waiting some more ...")
         self.node.get_logger().info("reset_planning_group service available")
+
+        self.set_velocity_cli = self.node.create_client(SetVelocity, "/setVelocityScaling")
+        while not self.set_velocity_cli.wait_for_service(timeout_sec=1.0):
+            self.node.get_logger().info("setVelocityScaling service not available, waiting some more ...")
+        self.node.get_logger().info("setVelocityScaling service available")
 
         self.is_simulation = is_simulation  # connects to the gripper control server defined in the gripper_driver package
         if not self.is_simulation:
@@ -174,6 +179,14 @@ class RobotClient:  #this is the class which gets called in your application// w
         if not s:
             self.node.get_logger().info("Opening gripper unsuccessful.")
         return s
+    
+    def setVelocity(self, fraction) -> bool:
+        req = SetVelocity.Request()
+        req.data = fraction
+        future = RobotClient.send_request(req, self.set_velocity_cli)
+        response = self.wait_for_response(future)
+        return response.success
+        
 
 
     @staticmethod
