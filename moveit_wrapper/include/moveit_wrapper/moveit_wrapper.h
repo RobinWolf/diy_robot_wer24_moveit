@@ -6,7 +6,7 @@
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 #include <moveit_wrapper/srv/move_to_pose.hpp>
 #include <moveit_wrapper/srv/move_to_joint_position.hpp>
-#include <moveit_wrapper/srv/SetVelocity.hpp>
+#include <moveit_wrapper/srv/set_velocity.hpp>
 #include <moveit_wrapper/srv/string.hpp>
 #include <geometry_msgs/msg/pose.hpp>
 #include <stdlib.h>
