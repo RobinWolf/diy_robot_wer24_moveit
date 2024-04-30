@@ -51,7 +51,7 @@ namespace moveit_wrapper
             bool ptp_cart(const geometry_msgs::msg::Pose &pose);
             bool ptp_joint(const std::vector<double> joint_position);
             bool setVelocityScaling(const std::shared_ptr<moveit_wrapper::srv::SetVelocity::Request> request,
-                std::shared_ptr<moveit_wrapper::srv::SetVelocity::Response> response)
+                std::shared_ptr<moveit_wrapper::srv::SetVelocity::Response> response);
 
     };
 }
