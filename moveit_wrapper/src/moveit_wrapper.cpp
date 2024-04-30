@@ -105,7 +105,7 @@ namespace moveit_wrapper
                 // Store trajectory in current_plan_
                 current_plan_ = std::make_shared<moveit::planning_interface::MoveGroupInterface::Plan>();
                 rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
-                current_plan_->planning_time_ = (rclcpp::Clock().now() - start).toSec();
+                current_plan_->planning_time_ = (rclcpp::Clock().now() - start).seconds();
 
                 if(success) {
                      _move_group->execute(current_plan_);
