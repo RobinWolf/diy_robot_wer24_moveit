@@ -35,7 +35,7 @@ namespace moveit_wrapper
         _reset_planning_group = this->create_service<moveit_wrapper::srv::String>("reset_planning_group", std::bind(&MoveitWrapper::reset_planning_group, this, _1, _2), rmw_qos_profile_services_default, _reset_planning_group_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
 
-        _setVelocityScaling = this->create_service<moveit_wrapper::srv::SetVelocity>("scale_velocity", std::bind(&MoveitWrapper::setVelocityScaling, this, _1, _2), rmw_qos_profile_services_default, _velocity_target_group);
+        _setVelocityScaling = this->create_service<moveit_wrapper::srv::SetVelocity>("setVelocityScaling", std::bind(&MoveitWrapper::setVelocityScaling, this, _1, _2), rmw_qos_profile_services_default, _velocity_target_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
 
         rclcpp::Rate loop_rate(1);
