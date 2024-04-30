@@ -185,7 +185,7 @@ namespace moveit_wrapper
         if(_i_move_group_initialized)
         {
              // Set the maximum velocity scaling factor
-            double factor = request->velocityscaling;
+            double factor = request->velocity_scaling;
             //_veloctiy_target = factor;
             _move_group->setMaxVelocityScalingFactor(factor);
             success = true;
