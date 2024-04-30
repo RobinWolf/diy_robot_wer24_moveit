@@ -105,6 +105,7 @@ namespace moveit_wrapper
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
                 // Recalculate timestamps in reference to velocityscaling factor
                 bool success = time_parameterization.computeTimeStamps(rt, _veloctiy_target);
+                RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "scale new timestamps with %f %% of -------> new trajectory",_veloctiy_target * 100.);
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
                 moveit::planning_interface::MoveGroupInterface::Plan current_plan_;
