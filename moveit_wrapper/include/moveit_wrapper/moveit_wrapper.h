@@ -20,12 +20,14 @@ namespace moveit_wrapper
             ~MoveitWrapper() {};
             void init_move_group();
         private:
+            //create callback groups fo managing the callback from the service server nodes
             rclcpp::CallbackGroup::SharedPtr _pose_target_lin_group;
             rclcpp::CallbackGroup::SharedPtr _pose_target_ptp_group;
             rclcpp::CallbackGroup::SharedPtr _joint_position_target_group;
             rclcpp::CallbackGroup::SharedPtr _reset_planning_group_group;
             rclcpp::CallbackGroup::SharedPtr _velocity_target_group;
-
+            
+            //create instances of ros2 service clients (maybe not necessaryy because also done in ros_enviroment package)
             rclcpp::Service<moveit_wrapper::srv::MoveToPose>::SharedPtr _move_to_pose_lin;
             rclcpp::Service<moveit_wrapper::srv::MoveToPose>::SharedPtr _move_to_pose_ptp;
             rclcpp::Service<moveit_wrapper::srv::MoveToJointPosition>::SharedPtr _move_to_joint_position;
@@ -34,8 +36,9 @@ namespace moveit_wrapper
 
             std::string _planning_group;
             bool _i_move_group_initialized;
-
             std::shared_ptr<moveit::planning_interface::MoveGroupInterface> _move_group;
+
+            //private member functions
             void move_to_pose_lin(const std::shared_ptr<moveit_wrapper::srv::MoveToPose::Request> request,
                 std::shared_ptr<moveit_wrapper::srv::MoveToPose::Response> response);
             void move_to_pose_ptp(const std::shared_ptr<moveit_wrapper::srv::MoveToPose::Request> request,
