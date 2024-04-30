@@ -103,7 +103,7 @@ namespace moveit_wrapper
                 bool success = time_parameterization.computeTimeStamps(rt, request->velocityscaling);
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
-                current_plan_ = std::make_shared<moveit::planning_interface::MoveGroupInterface::Plan>();
+                moveit::planning_interface::MoveGroupInterface::Plan current_plan_;
                 rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
                 current_plan_->planning_time_ = (rclcpp::Clock().now() - start).seconds();
 
@@ -111,7 +111,6 @@ namespace moveit_wrapper
                      _move_group->execute(current_plan_);
                  }
             }
-
 
             // if(fraction > 0.0) {
             //     success = true;
