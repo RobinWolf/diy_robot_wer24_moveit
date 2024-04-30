@@ -12,13 +12,16 @@ namespace moveit_wrapper
 {
     MoveitWrapper::MoveitWrapper(const rclcpp::NodeOptions &options) : Node("moveit_wrapper", options)
     {
+        //create callbacks
         _i_move_group_initialized = false;
         this->get_parameter("planning_group", _planning_group);
         _pose_target_lin_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         _pose_target_ptp_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         _joint_position_target_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         _reset_planning_group_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
+        _velocity_target_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
+        //create services
         _move_to_pose_lin = this->create_service<moveit_wrapper::srv::MoveToPose>("move_to_pose_lin", std::bind(&MoveitWrapper::move_to_pose_lin, this, _1, _2), rmw_qos_profile_services_default, _pose_target_lin_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_lin service initialized.");
 
@@ -29,6 +32,9 @@ namespace moveit_wrapper
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_joint_position service initialized.");
 
         _reset_planning_group = this->create_service<moveit_wrapper::srv::String>("reset_planning_group", std::bind(&MoveitWrapper::reset_planning_group, this, _1, _2), rmw_qos_profile_services_default, _reset_planning_group_group);
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
+
+        _velocity_target_group = this->create_service<moveit_wrapper::srv::SetVelocity>("velocity_scaling", std::bind(&MoveitWrapper::setVelocityScaling, this, _1, _2), rmw_qos_profile_services_default, _velocity_target_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
 //        _move_to_pose = this->create_service<moveit_wrapper::srv::MoveToPose>("move_to_pose", std::bind(&MoveitWrapper::move_to_pose, this, _1, _2));
 //        _move_to_joint_position = this->create_service<moveit_wrapper::srv::MoveToJointPosition>("move_to_joint_position", std::bind(&MoveitWrapper::move_to_joint_position, this, _1, _2));
@@ -78,7 +84,6 @@ namespace moveit_wrapper
 
             //https://github.com/moveit/moveit2/blob/main/moveit_ros/visualization/motion_planning_rviz_plugin/src/motion_planning_frame_planning.cpp
 
-            
             // Set goal state
             std::vector<geometry_msgs::msg::Pose> waypoints;
             waypoints.push_back(request->pose);
@@ -99,7 +104,7 @@ namespace moveit_wrapper
                 rt.setRobotTrajectoryMsg(*_move_group->getCurrentState(), trajectory);
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
                 // Recalculate timestamps in reference to velocityscaling factor
-                bool success = time_parameterization.computeTimeStamps(rt, request->velocity_scaling);
+                bool success = time_parameterization.computeTimeStamps(rt, _veloctiy_target);
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
                 moveit::planning_interface::MoveGroupInterface::Plan current_plan_;
@@ -181,6 +186,7 @@ namespace moveit_wrapper
         {
              // Set the maximum velocity scaling factor
             double factor = request->velocityscaling;
+            //_veloctiy_target = factor;
             _move_group->setMaxVelocityScalingFactor(factor);
             success = true;
         }

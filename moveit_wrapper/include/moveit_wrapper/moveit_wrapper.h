@@ -33,6 +33,7 @@ namespace moveit_wrapper
             rclcpp::Service<moveit_wrapper::srv::MoveToJointPosition>::SharedPtr _move_to_joint_position;
             rclcpp::Service<moveit_wrapper::srv::String>::SharedPtr _reset_planning_group;
             rclcpp::Service<moveit_wrapper::srv::SetVelocity>::SharedPtr _setVelocityScaling;
+            double _veloctiy_target;
 
             std::string _planning_group;
             bool _i_move_group_initialized;
