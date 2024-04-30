@@ -104,8 +104,8 @@ namespace moveit_wrapper
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
                 moveit::planning_interface::MoveGroupInterface::Plan current_plan_;
-                rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
-                current_plan_->planning_time_ = (rclcpp::Clock().now() - start).seconds();
+                rt.getRobotTrajectoryMsg(current_plan_.trajectory_);
+                current_plan_.planning_time_ = (rclcpp::Clock().now() - start).seconds();
 
                 if(success) {
                      _move_group->execute(current_plan_);
