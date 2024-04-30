@@ -64,6 +64,7 @@ set(srv_files
   "srv/MoveToPose.srv"
   "srv/MoveToJointPosition.srv"
   "srv/String.srv"
+  "srv/SetVelocity.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
