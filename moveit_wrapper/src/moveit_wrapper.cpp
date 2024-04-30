@@ -97,7 +97,7 @@ namespace moveit_wrapper
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Achieved %f %% of Cartesian path", fraction * 100.);
                 // Compute time parameterization to also provide velocities
                 robot_trajectory::RobotTrajectory rt(_move_group->getRobotModel(), _move_group->getName());
-                rt.setRobotTrajectoryMsg(*_move_group_->getCurrentState(), trajectory);
+                rt.setRobotTrajectoryMsg(*_move_group->getCurrentState(), trajectory);
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
 
                 // Recalculate timestamps in reference to velocityscaling factor
@@ -106,7 +106,7 @@ namespace moveit_wrapper
                 // Store trajectory in current_plan_
                 current_plan_ = std::make_shared<moveit::planning_interface::MoveGroupInterface::Plan>();
                 rt.getRobotTrajectoryMsg(current_plan_->trajectory_);
-                current_plan_->planning_time_ = (ros::WallTime::now() - start).toSec();
+                current_plan_->planning_time_ = (rclcpp::Clock().now() - start).toSec();
 
                 if(success) {
                      _move_group->execute(current_plan_);
