@@ -27,7 +27,7 @@ namespace moveit_wrapper
             rclcpp::CallbackGroup::SharedPtr _reset_planning_group_group;
             rclcpp::CallbackGroup::SharedPtr _velocity_target_group;
             
-            //create instances of ros2 service clients (maybe not necessaryy because also done in ros_enviroment package)
+            //create instances of ros2 service instances (assigned content in src with this -> create_service)
             rclcpp::Service<moveit_wrapper::srv::MoveToPose>::SharedPtr _move_to_pose_lin;
             rclcpp::Service<moveit_wrapper::srv::MoveToPose>::SharedPtr _move_to_pose_ptp;
             rclcpp::Service<moveit_wrapper::srv::MoveToJointPosition>::SharedPtr _move_to_joint_position;
