@@ -1,5 +1,5 @@
 #include <moveit_wrapper/moveit_wrapper.h>
-#include <moveit/trajectory_processing/iterative_time_parameterization.h>
+#include <moveit/trajectory_processing/time_optimal_trajectory_generation.h>
 #include "rclcpp/rclcpp.hpp"
 
 using std::placeholders::_1;
@@ -99,9 +99,8 @@ namespace moveit_wrapper
                 robot_trajectory::RobotTrajectory rt(_move_group->getRobotModel(), _move_group->getName());
                 rt.setRobotTrajectoryMsg(*_move_group->getCurrentState(), trajectory);
                 trajectory_processing::TimeOptimalTrajectoryGeneration time_parameterization;
-
                 // Recalculate timestamps in reference to velocityscaling factor
-                bool success = time_parameterization.computeTimeStamps.computeTimeStamps(rt, request->velocityscaling);
+                bool success = time_parameterization.computeTimeStamps(rt, request->velocityscaling);
                 RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Computing time stamps %s", success ? "SUCCEEDED" : "FAILED");
                 // Store trajectory in current_plan_
                 current_plan_ = std::make_shared<moveit::planning_interface::MoveGroupInterface::Plan>();
