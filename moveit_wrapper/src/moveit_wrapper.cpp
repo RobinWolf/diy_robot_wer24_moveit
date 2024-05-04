@@ -22,7 +22,7 @@ namespace moveit_wrapper
         _reset_planning_group_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
         _velocity_target_group = this->create_callback_group(rclcpp::CallbackGroupType::MutuallyExclusive);
 
-        //create services
+        //create services and bind callback functions
         _move_to_pose_lin = this->create_service<moveit_wrapper::srv::MoveToPose>("move_to_pose_lin", std::bind(&MoveitWrapper::move_to_pose_lin, this, _1, _2), rmw_qos_profile_services_default, _pose_target_lin_group);
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_lin service initialized.");
 
@@ -44,7 +44,7 @@ namespace moveit_wrapper
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Initialized.");
     }
 
-
+    //set up private functions which are binded to the service callback functions
     void MoveitWrapper::init_move_group()
     {
         static const std::string PLANNING_GROUP = _planning_group;
