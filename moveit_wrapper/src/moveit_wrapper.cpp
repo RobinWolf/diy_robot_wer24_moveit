@@ -115,9 +115,10 @@ namespace moveit_wrapper
                 if(success) {
                      _move_group->execute(current_plan_);
                  }
+
+                response->success = success;
             }
         }
-        response->success = success;
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_lin callback executed.");
     }
 
