@@ -36,10 +36,11 @@ namespace moveit_wrapper
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
 
         _setVelocityScaling = this->create_service<moveit_wrapper::srv::SetVelocity>("setVelocityScaling", std::bind(&MoveitWrapper::setVelocityScaling, this, _1, _2), rmw_qos_profile_services_default, _velocity_target_group);
-        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group service initialized.");
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "setVelocityScaling service initialized.");
 
         rclcpp::Rate loop_rate(1);
         loop_rate.sleep();
+
 
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "Initialized.");
     }
@@ -68,6 +69,10 @@ namespace moveit_wrapper
         _move_group->stop();
         _move_group->clearPoseTargets();
         init_move_group();
+
+        // set goal planning time
+        _move_group->setPlanningTime(2.0);
+        
         response->success = true;
         RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "reset_planning_group callback executed.");
     }
@@ -81,6 +86,7 @@ namespace moveit_wrapper
         {   
             _move_group->stop();
             _move_group->clearPoseTargets();
+            _move_group->setStartStateToCurrentState();
 
             //https://github.com/moveit/moveit2/blob/main/moveit_ros/visualization/motion_planning_rviz_plugin/src/motion_planning_frame_planning.cpp
 
@@ -113,35 +119,50 @@ namespace moveit_wrapper
                 current_plan_.planning_time_ = (rclcpp::Clock().now() - start).seconds();
 
                 if(success_timeparam) {
-                     _move_group->execute(current_plan_);
-                     success = true;
+                     success = (_move_group->execute(current_plan_)== moveit::core::MoveItErrorCode::SUCCESS);
                  }
 
                 response->success = success;
             }
         }
-        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_lin callback executed.");
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_lin callback executed with %s", success ? "SUCCEEDED" : "FAILED");
     }
 
 
     void MoveitWrapper::move_to_pose_ptp(const std::shared_ptr<moveit_wrapper::srv::MoveToPose::Request> request,
                 std::shared_ptr<moveit_wrapper::srv::MoveToPose::Response> response)
     {
+        bool planning_success = false;
         bool success = false;
+
         if(_i_move_group_initialized)
         {
             _move_group->stop();
             _move_group->clearPoseTargets();
+            _move_group->setStartStateToCurrentState();
+
 
             _move_group->setPoseTarget(request->pose);
-            moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-            success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-            if(success) {
-                _move_group->move();
+            
+            for (int i = 0; i < 3; i++)
+            {
+                moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+                planning_success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+                RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "CartesianPTP planning %s", planning_success ? "SUCCEEDED" : "FAILED");
+                if(planning_success) {
+                    break;
+                }
+            }
+
+            if(planning_success) {
+                success = (_move_group->move() == moveit::core::MoveItErrorCode::SUCCESS);
+            }
+            else {
+                RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "CartesianPTP planning failed after 3 attempts.");
             }
         }
         response->success = success;
-        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_ptp callback executed.");
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_pose_ptp callback executed with %s", success ? "SUCCEEDED" : "FAILED");
     }
 
 
@@ -153,32 +174,49 @@ namespace moveit_wrapper
         {
             _move_group->stop();
             _move_group->clearPoseTargets();
+            _move_group->setStartStateToCurrentState();
 
             success = ptp_joint(request->joint_position);
         }
         response->success = success;
-        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_joint_position callback executed.");
+        RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "move_to_joint_position callback executed with %s", success ? "SUCCEEDED" : "FAILED");
     }
 
 
     bool MoveitWrapper::ptp_joint(const std::vector<double> joint_position)
     {
         bool success = false;
+        bool planning_success = false;
+
         if(_i_move_group_initialized)
         {
             _move_group->stop();
             _move_group->clearPoseTargets();
+            _move_group->setStartStateToCurrentState();
+
             _move_group->setJointValueTarget(joint_position);
-            moveit::planning_interface::MoveGroupInterface::Plan my_plan;
-            success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
-            if(success) {
-                _move_group->move();
+
+            for (int i = 0; i < 3; i++)
+            {
+                moveit::planning_interface::MoveGroupInterface::Plan my_plan;
+                planning_success = (_move_group->plan(my_plan) == moveit::core::MoveItErrorCode::SUCCESS);
+                RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "JointPTP planning %s", planning_success ? "SUCCEEDED" : "FAILED");
+                if(planning_success) {
+                    break;
+                }
+            }
+
+            if(planning_success) {
+                success = (_move_group->move() == moveit::core::MoveItErrorCode::SUCCESS);
+            }
+            else {
+                RCLCPP_INFO(rclcpp::get_logger("moveit_wrapper"), "JointPTP planning failed after 3 attempts.");
             }
         }
         return success;
     }
 
-    bool MoveitWrapper::setVelocityScaling(const std::shared_ptr<moveit_wrapper::srv::SetVelocity::Request> request,
+    void MoveitWrapper::setVelocityScaling(const std::shared_ptr<moveit_wrapper::srv::SetVelocity::Request> request,
                 std::shared_ptr<moveit_wrapper::srv::SetVelocity::Response> response)
     {
         bool success = false;
