@@ -189,7 +189,7 @@ RUN cd /home/$USER/dependencies/diy_robot_moveit_ws/src && \
 # install dependencie packages
 USER root
 RUN DEBIAN_FRONTEND=noninteractive \
-	apt update && apt install -y  \
+    apt-get update && apt-get install -y  \
     ros-$ROS_DISTRO-moveit  \
     ros-$ROS_DISTRO-moveit-common  \
     ros-$ROS_DISTRO-moveit-servo  \
@@ -199,8 +199,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
     ros-$ROS_DISTRO-controller-manager \
     ros-$ROS_DISTRO-sensor-msgs-py  \
     ros-$ROS_DISTRO-joy*  \
-    ros-$ROS_DISTRO-rqt-controller-manager \
-    ros-$ROS_DISTRO-roscpp
+    ros-$ROS_DISTRO-rqt-controller-manager 
+    #ros-$ROS_DISTRO-roscpp
 USER $USER
 
 #install dependencies for python interface
