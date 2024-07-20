@@ -186,8 +186,8 @@ RUN mkdir -p /home/$USER/dependencies/diy_robot_moveit_ws/src
 RUN cd /home/$USER/dependencies/diy_robot_moveit_ws/src && \
     git clone https://github.com/RobinWolf/diy_robot_wer24_moveit
 
-RUN cd /home/$USER/dependencies/diy_robot_moveit_ws/src/trac_ik && \
-    git clone git clone https://bitbucket.org/traclabs/trac_ik.git
+RUN cd /home/$USER/dependencies/diy_robot_moveit_ws/src/diy_robot_wer24_moveit/trac_ik && \
+    git clone https://bitbucket.org/traclabs/trac_ik.git -b rolling-devel
 
 # install dependencie packages
 USER root
