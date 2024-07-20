@@ -206,8 +206,10 @@ USER $USER
 #install dependencies for python interface
 USER root
 RUN apt-get update && apt-get install -y pip
+RUN apt-get update && apt-get install -y libnlopt*
 USER $USER
 
+RUN pip install transforms3d
 RUN pip install scipy
 
 # copy dependencies folder from local machine --> maybe move to application package or clone from github?
